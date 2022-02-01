@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "nodenext",
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "strict": true,
+    "jsx": "preserve",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "lib": ["esnext", "ES2021", "dom"],
+    "outDir": "./dist",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts"]
+}
