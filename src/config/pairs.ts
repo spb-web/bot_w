@@ -12,6 +12,15 @@ export const pairs:ReadonlyArray<PairType> = [
     decimals: 18,
   },
   {
+    token0: tokens.usdt,
+    token1: tokens.nmx,
+    symbol: 'USDT-NMX LP',
+    address: '0xA5F2f22d3b4FcCf0fEe429e6a8AcFc376F5AFa22',
+    exchangeName: 'Nomiswap',
+    type: 'LP-TOKEN',
+    decimals: 18,
+  },
+  {
     token0: tokens.nmx,
     token1: tokens.busd,
     symbol: 'NMX-BUSD LP',

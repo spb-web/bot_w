@@ -11,6 +11,13 @@ export const stakingPools:ReadonlyArray<StakingPoolType> = [
     name: 'USDT-NMX',
   },
   {
+    address: '0x2D8b192eAd2f402867323B072D143d44435EDd74',
+    stakingToken: lpTokens.nomiswap.usdtNmx,
+    earningToken: tokens.nmx,
+    exchangeName: 'Nomiswap',
+    name: 'USDT-NMX',
+  },
+  {
     address: '0xDbF1B10FE3e05397Cd454163F6F1eD0c1181C3B3',
     stakingToken: tokens.nmx,
     earningToken: tokens.nmx,

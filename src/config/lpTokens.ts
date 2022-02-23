@@ -5,6 +5,7 @@ export const lpTokens = {
     usdtNmx: getPairByAddress('0x8D8B74EA95c0689ac84DdC702D2953C6b2e9f48B')
   },
   nomiswap: {
+    usdtNmx: getPairByAddress('0xA5F2f22d3b4FcCf0fEe429e6a8AcFc376F5AFa22'),
     nmxBusd: getPairByAddress('0x01Ddfc73488eEBBf6D57EdAb4697a23897b93Ca2'),
     wbnbNmx: getPairByAddress('0x596f619600Da38acE164C9FAceE730c6dbE83C86'),
     wbnbUsdt: getPairByAddress('0xe2Bbf54Dc0ccDD0Cf6270f2aF2f62FF79903Bb27'),
