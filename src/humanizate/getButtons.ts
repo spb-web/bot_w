@@ -12,8 +12,8 @@ export const getButtons = (log: BaseTargetEventWithTransaction<{ rawLog: Log}> |
 
   if (from) {
     buttons.push(
-      { text: '👛 BscScan', url: bscscanLink.accountBscscan(log.rawLog.transactionHash) },
-      { text: '👛 Debank', url: bscscanLink.accountDebank(log.rawLog.transactionHash) },
+      { text: '👛 BscScan', url: bscscanLink.accountBscscan(from) },
+      { text: '👛 Debank', url: bscscanLink.accountDebank(from) },
     )
   }
 
