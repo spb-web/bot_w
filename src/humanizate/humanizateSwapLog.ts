@@ -25,17 +25,17 @@ export const humanizateSwapLog = (log:BaseTargetEventWithTransactionAndBalance<S
   if (log.pair.token0.address === targetToken.address) {
     if (log.amount0In.gt(0)) {
       text = `${sell} ${toLocaleString(log.amount0In)} ${symbol0} за ${toLocaleString(log.amount1Out)} ${symbol1} ${exchageName}`
-      price = `1 ${symbol0} = ${toLocaleString(log.amount1Out.div(log.amount0In))} ${symbol1}`
+      price = `1 ${symbol0} \\\= ${toLocaleString(log.amount1Out.div(log.amount0In))} ${symbol1}`
     } else {
       text = `${buy} ${toLocaleString(log.amount0Out)} ${symbol0} за ${toLocaleString(log.amount1In)} ${symbol1} ${exchageName}`
-      price = `1 ${symbol0} = ${toLocaleString(log.amount1In.div(log.amount0Out))} ${symbol1}`
+      price = `1 ${symbol0} \\\= ${toLocaleString(log.amount1In.div(log.amount0Out))} ${symbol1}`
     } 
   } else if (log.amount1In.gt(0)) {
     text = `${sell} ${toLocaleString(log.amount1In)} ${symbol1} за ${toLocaleString(log.amount0Out)} ${symbol0} ${exchageName}`
-    price = `1 ${symbol1} = ${toLocaleString(log.amount0Out.div(log.amount1In))} ${symbol0}`
+    price = `1 ${symbol1} \\\= ${toLocaleString(log.amount0Out.div(log.amount1In))} ${symbol0}`
   } else {
     text = `${buy} ${toLocaleString(log.amount1Out)} ${symbol1} за ${toLocaleString(log.amount0In)} ${symbol0} ${exchageName}`
-    price = `1 ${symbol1} = ${toLocaleString(log.amount0In.div(log.amount1Out))} ${symbol0}`
+    price = `1 ${symbol1} \\\= ${toLocaleString(log.amount0In.div(log.amount1Out))} ${symbol0}`
   }
 
   text = `${text}\n${price}\n${sender}\n${targetTokenBalance}\n${targetTokenStaked}`
