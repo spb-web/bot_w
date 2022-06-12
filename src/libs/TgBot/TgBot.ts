@@ -10,6 +10,7 @@ export type MessagePayloadType = {
   text: string,
   extra?: ExtraReplyMessage,
   chatId: string,
+  source?: Buffer
 }
 
 export class TgBot {
@@ -34,12 +35,26 @@ export class TgBot {
     })
   }
   
-  public async send(payload:MessagePayloadType):Promise<Message.TextMessage> {
-    const message = await this.bot.telegram.sendMessage(
-      payload.chatId,
-      escape(payload.text),
-      { parse_mode: 'MarkdownV2', ...payload.extra }
-    )
+  public async send(payload:MessagePayloadType):Promise<Message.TextMessage|Message.PhotoMessage> {
+    let message:Message.TextMessage|Message.PhotoMessage 
+    
+    if (payload.source) {
+      message = await this.bot.telegram.sendPhoto(
+        payload.chatId,
+        { source: payload.source },
+        {
+          caption: escape(payload.text),
+          parse_mode: 'MarkdownV2',
+          ...payload.extra,
+        },
+      )
+    } else {
+      message = await this.bot.telegram.sendMessage(
+        payload.chatId,
+        escape(payload.text),
+        { parse_mode: 'MarkdownV2', ...payload.extra, }
+      )
+    }
 
     return message
   }
