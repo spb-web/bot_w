@@ -49,6 +49,10 @@ export class TgBot {
 
     return new EditableMessage(this.bot, message.chat.id, message.message_id)
   }
+
+  public handleCommand(...params: Parameters<typeof this.bot.command>) {
+    this.bot.command(...params)
+  }
 }
 
 export const tgBot = new TgBot(botToken)

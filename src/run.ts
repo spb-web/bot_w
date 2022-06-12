@@ -7,6 +7,8 @@ import { isLpWithTargetToken } from './utils/isLpWithTargetToken'
 import { wsProviderController } from './utils/providers/WsProviderController'
 import { watch } from './watch'
 import { getBlock } from './watchers/block'
+import { movingAverages, movingAveragesDays } from './movingAverage'
+import { humanizateAnalysis } from './humanizate/humanizateAnalysis'
 
 const init = async () => {
   const pairsWithTargetToken = pairs.filter(isLpWithTargetToken)
@@ -17,6 +19,25 @@ const init = async () => {
     targetPriceFetcher.fetchLpPriceAll(pairsWithTargetToken),
     wsProviderController.connect(),
   ])
+
+  tgBot.handleCommand('av', async (ctx) => {
+    await ctx.deleteMessage(ctx.message.message_id)
+    const analysis = {
+      currentPrice: movingAverages[10].lastValue(),
+      movingAverages: movingAveragesDays.map((days) => {
+        return {
+          days,
+          movingAverage: movingAverages[days].movingAverage(),
+        }
+      }),
+    }
+    await tgBot.send(
+      humanizateAnalysis(
+        analysis,
+        ctx.chat.id.toString()
+      )
+    )
+  })
 }
 
 const run = async (wsProvider:WebSocketProvider) => {
