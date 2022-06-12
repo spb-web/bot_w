@@ -1,4 +1,6 @@
 import { createCanvas } from 'canvas'
+import interpolate from 'color-interpolate'
+
 import { toLocaleString } from '../utils/toLocaleString'
 
 export type HumanizateAnalysisPayload = {
@@ -23,60 +25,75 @@ const drawPart = (ctx:CanvasRenderingContext2D, color:string, width:number, heig
   ctx.stroke()
 }
 
+const colors = ['#2862ff', '#5a9bf6', '#d1d4db', '#ef9a9a', '#f44336']
+const getColor = interpolate(colors)
+
 const drawImage = (value:number) => {
-  const size = 600
-  const radius = size / 2 - 50
-  const height = radius + 50
-  const canvas = createCanvas(size, height)
+  const width = 800
+  const radius = width / 2 - 150
+  const height = radius + 200
+  const canvas = createCanvas(width, height)
   const ctx = canvas.getContext('2d')
 
   ctx.lineWidth = 10; // толщина линии
 
   const gradient = ctx.createRadialGradient(
-    size / 2,
+    width / 2,
     height,
     radius,
-    size / 2,
+    width / 2,
     height,
     0
   )
 
   // Add three color stops
-  gradient.addColorStop(0, 'rgba(247,82,95,0.5)')
+  gradient.addColorStop(-0.8, getColor(value))
   gradient.addColorStop(.6, 'transparent')
 
   // Set the fill style and draw a rectangle
   ctx.beginPath()
-  ctx.arc(size / 2, height, radius, 0, Math.PI, true)
+  ctx.arc(width / 2, height, radius, 0, Math.PI, true)
   ctx.fillStyle = gradient
   
   ctx.fill()
 
 
-  drawPart(ctx, 'rgb(40,98,255)', size, height, radius, 1)
-  drawPart(ctx, 'rgba(40, 98, 255, 0.5)', size, height, radius, 2)
-  drawPart(ctx, '#aaaaaa', size, height, radius, 3)
-  drawPart(ctx, 'rgba(247,82,95,0.5)', size, height, radius, 4)
-  drawPart(ctx, 'rgb(247,82,95)', size, height, radius, 5)
+  ctx.font = '25px Impact'
+  ctx.textAlign = 'center'
+  ctx.fillStyle = '#000'
+  ctx.fillText('Активно\nпродавать', 80, 350)
+  ctx.fillText('Продавать', 180, 200)
+  ctx.fillText('Нейтрально', width / 2, 150)
+  ctx.fillText('Покупать', 620, 200)
+  ctx.fillText('Активно\nпокупать', 720, 350)
+  ctx.font = '40px Impact'
+  ctx.strokeStyle = getColor(value)
+  // ctx.fillText('АКТИВНО ПРОДАВАТЬ', width / 2, 60)
+
+  drawPart(ctx, colors[0], width, height, radius, 1)
+  drawPart(ctx, colors[1], width, height, radius, 2)
+  drawPart(ctx, colors[2], width, height, radius, 3)
+  drawPart(ctx, colors[3], width, height, radius, 4)
+  drawPart(ctx, colors[4], width, height, radius, 5)
 
   ctx.beginPath()
-  ctx.lineWidth = 3
+  ctx.lineWidth = 5
   ctx.lineCap = 'round'
   ctx.strokeStyle = '#000'
-  ctx.moveTo(size / 2, height)
+  ctx.moveTo(width / 2, height - 7)
   ctx.lineTo(
-    size / 2 + Math.cos(Math.PI * value) * (radius - 20),
-    height - Math.sin(Math.PI * value) * (radius - 20),
+    width / 2 + Math.cos(Math.PI * value) * (radius - 30),
+    height - Math.sin(Math.PI * value) * (radius - 30),
   )
   ctx.stroke()
 
   ctx.beginPath()
-  ctx.arc(size / 2, height, 40, 0, 2 * Math.PI)
+  ctx.arc(width / 2, height - 7, 40, 0, 2 * Math.PI)
   ctx.fillStyle = '#fff'
   ctx.fill()
 
   ctx.beginPath()
-  ctx.arc(size / 2, height, 10, 0, 2 * Math.PI)
+  ctx.arc(width / 2, height - 7, 7, 0, 2 * Math.PI)
   ctx.strokeStyle = '#000'
   ctx.stroke()
 
@@ -95,7 +112,7 @@ export const humanizateAnalysis = (analysis: HumanizateAnalysisPayload, chatId: 
     let emoji = '⚪️'
 
     if (movingAverage > analysis.currentPrice) {
-      if (analysis.currentPrice / movingAverage > 0.05) {
+      if (analysis.currentPrice / movingAverage < 0.99) {
         re = 'Продавать'
         emoji = '🔴'
 
@@ -103,7 +120,7 @@ export const humanizateAnalysis = (analysis: HumanizateAnalysisPayload, chatId: 
       } else {
         holdRe++;
       }
-    } else if (movingAverage / analysis.currentPrice > 0.05) {
+    } else if (movingAverage / analysis.currentPrice < 0.99) {
       re = 'Покупать'
       emoji = '🟢'
 
@@ -111,13 +128,13 @@ export const humanizateAnalysis = (analysis: HumanizateAnalysisPayload, chatId: 
     } else {
       holdRe++;
     }
-    text += `${emoji} Скользящая средняя (${ days }):\t ~$${toLocaleString(movingAverage)} (${re})\n`      
+    text += `${emoji} Средняя (${ days }):\t ~$${toLocaleString(movingAverage)} (${re})\n`      
   })
 
   text+=`\nПродавать: ${sellRe}; Нейтрально: ${holdRe}; Покупать: ${buyRe} \n`
 
   const totalRe = sellRe + holdRe + buyRe
-  const indx = ((((sellRe - buyRe + holdRe / 2) / totalRe / 2) + 0.5) * (Math.PI / 5 * 4) + Math.PI / 10) / Math.PI
+  const indx = ((((sellRe - buyRe + (holdRe / 2)) / totalRe / 2) + 0.5) * (Math.PI / 5 * 4) + Math.PI / 10) / Math.PI
 
   const img = drawImage(indx)
 
