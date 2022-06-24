@@ -1,4 +1,4 @@
-import { WebSocketProvider } from '@ethersproject/providers'
+import { BaseProvider, WebSocketProvider } from '@ethersproject/providers'
 import { pairs } from './config/pairs'
 import { targetPriceFetcher } from './libs/TargetPriceFetcher'
 import { tgBot } from './libs/TgBot'
@@ -9,6 +9,8 @@ import { watch } from './watch'
 import { getBlock } from './watchers/block'
 import { movingAverages, movingAveragesDays } from './movingAverage'
 import { humanizateAnalysis } from './humanizate/humanizateAnalysis'
+import { getTechnicalindicators } from './libs/technicalindicators'
+import { getProvider } from './utils/providers/getProvider'
 
 const init = async () => {
   const pairsWithTargetToken = pairs.filter(isLpWithTargetToken)
@@ -21,6 +23,7 @@ const init = async () => {
   ])
 
   tgBot.handleCommand('av', async (ctx) => {
+    getTechnicalindicators()
     await ctx.deleteMessage(ctx.message.message_id)
     const analysis = {
       currentPrice: movingAverages[10].lastValue(),
@@ -40,7 +43,7 @@ const init = async () => {
   })
 }
 
-const run = async (wsProvider:WebSocketProvider) => {
+const run = async (wsProvider:BaseProvider) => {
   const currentBlock = await getBlock('latest')
 
   watch(wsProvider)
@@ -51,12 +54,14 @@ const run = async (wsProvider:WebSocketProvider) => {
     )
   }
 
-  wsProviderController.once('connected', run)
+  // wsProviderController.once('connected', run)
 }
 
+run(getProvider())
+
 init()
-  .then(() => wsProviderController.waitWsConnect())
-  .then(run)
+  // .then(() => wsProviderController.waitWsConnect())
+  // .then(run)
   .catch((error) => {
     console.error(error)
     tgBot.sendLog('Main error \n'+JSON.stringify(error))

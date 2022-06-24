@@ -1,5 +1,5 @@
 import type { BaseTargetEventWithTransactionAndBalance } from './entries'
-import type { WebSocketProvider } from '@ethersproject/providers'
+import type { BaseProvider } from '@ethersproject/providers'
 import { map, mergeMap, Subject, takeUntil } from 'rxjs'
 import { filterApprovalEvents, filterLpEvents, filterMinAmountSwapLogs, filterStakingEvents, filterSwapLogs, transfersFilter } from './eventFilters'
 import { humanizateApprovalLog, humanizateLpLog, humanizateStakingLog, humanizateSwapLog, humanizateTransferLog } from './humanizate'
@@ -18,7 +18,7 @@ import { isLpWithTargetToken } from './utils/isLpWithTargetToken'
 const pairsWithTargetToken = pairs.filter(isLpWithTargetToken)
 const destroy$ = new Subject<void>()
 
-export const watch = (wsProvider:WebSocketProvider) => {
+export const watch = (wsProvider:BaseProvider) => {
   destroy$.next()
 
   const messagesSubject$ = new Subject<MessagePayloadType>()

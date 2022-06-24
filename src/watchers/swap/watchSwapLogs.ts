@@ -1,7 +1,7 @@
 import type { BaseTargetEvent, PairType } from '@/entries'
 import type { Log } from '@ethersproject/abstract-provider'
 import type { EventFilter } from 'ethers'
-import type { WebSocketProvider } from '@ethersproject/providers'
+import type { BaseProvider } from '@ethersproject/providers'
 import { Observable } from 'rxjs'
 import BigNumber from 'bignumber.js'
 import { id, Interface } from 'ethers/lib/utils'
@@ -23,7 +23,7 @@ export type SwapEvent = Readonly<{
   pair: PairType,
 }> & BaseTargetEvent
 
-export const watchSwapLog = (wsProvider:WebSocketProvider, pair:PairType):Observable<SwapEvent> => {
+export const watchSwapLog = (wsProvider:BaseProvider, pair:PairType):Observable<SwapEvent> => {
   const filter:EventFilter = {
     address: pair.address,
     topics: [ id('Swap(address,uint256,uint256,uint256,uint256,address)') ]

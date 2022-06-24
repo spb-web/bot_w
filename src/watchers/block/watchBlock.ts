@@ -1,8 +1,8 @@
-import type { WebSocketProvider } from '@ethersproject/providers'
+import type { BaseProvider } from '@ethersproject/providers'
 import { Observable } from 'rxjs'
 import { BlockWithTransactions } from '@ethersproject/abstract-provider'
 
-export const watchBlock = (wsProvider:WebSocketProvider):Observable<BlockWithTransactions> => {
+export const watchBlock = (wsProvider:BaseProvider):Observable<BlockWithTransactions> => {
   const observable = new Observable<BlockWithTransactions>((subscriber) => {
     console.debug(`[watchBlock]: subscribed to blocks`)
 

@@ -1,7 +1,7 @@
 import type { Log } from '@ethersproject/abstract-provider'
 import type { EventFilter } from 'ethers'
 import type { BaseTargetEvent, TokenType } from '@/entries'
-import type { WebSocketProvider } from '@ethersproject/providers'
+import type { BaseProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 import { id, Interface } from 'ethers/lib/utils'
 import { Observable } from 'rxjs'
@@ -20,7 +20,7 @@ export type TransferEvent = Readonly<{
   token: TokenType,
 }> & BaseTargetEvent
 
-export const watchTransfers = (wsProvider:WebSocketProvider, token:TokenType) => {
+export const watchTransfers = (wsProvider:BaseProvider, token:TokenType) => {
   const filter:EventFilter = {
     address: token.address,
     topics: [ id('Transfer(address,address,uint256)') ],

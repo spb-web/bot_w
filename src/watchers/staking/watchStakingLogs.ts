@@ -1,12 +1,12 @@
 import type { EventFilter } from 'ethers'
 import type { Log } from '@ethersproject/abstract-provider'
 import type { StakingPoolType } from '@/entries'
-import type { WebSocketProvider } from '@ethersproject/providers'
+import type { BaseProvider } from '@ethersproject/providers'
 import type { RewardedEvent, StakedEvent, UnstakedEvent } from './types'
 import { Observable } from 'rxjs'
 import { getEventFilter, parseRawStakingLog } from './helpers'
 
-export const watchStakingLogs = (wsProvider:WebSocketProvider, stakingPool:StakingPoolType) => {
+export const watchStakingLogs = (wsProvider:BaseProvider, stakingPool:StakingPoolType) => {
   const filter:EventFilter = getEventFilter(stakingPool.address)
 
   const observable = new Observable<StakedEvent|UnstakedEvent|RewardedEvent>((subscriber) => {
