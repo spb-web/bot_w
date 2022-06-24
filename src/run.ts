@@ -19,7 +19,7 @@ const init = async () => {
     tgBot.launch(),
     targetPriceFetcher.fetchPrice(),
     targetPriceFetcher.fetchLpPriceAll(pairsWithTargetToken),
-    wsProviderController.connect(),
+    // wsProviderController.connect(),
   ])
 
   tgBot.handleCommand('av', async (ctx) => {
@@ -67,12 +67,12 @@ init()
     tgBot.sendLog('Main error \n'+JSON.stringify(error))
   })
 
-wsProviderController.on('connected', () => {
-  tgBot.sendLog('connected')
-})
-wsProviderController.on('error', (error) => {
-  tgBot.sendLog(JSON.stringify(error))
-})
-wsProviderController.on('disconnected', () => {
-  tgBot.sendLog('disconnected')
-})
+// wsProviderController.on('connected', () => {
+//   tgBot.sendLog('connected')
+// })
+// wsProviderController.on('error', (error) => {
+//   tgBot.sendLog(JSON.stringify(error))
+// })
+// wsProviderController.on('disconnected', () => {
+//   tgBot.sendLog('disconnected')
+// })
