@@ -8,7 +8,7 @@ export const getMovingAverage = () => movingAverage.movingAverage()
 
 const timespan = 60*15*60 // 15 min
 const secPerDay = 24 * 60 * 60
-export const movingAveragesDays = [10, 20, 30, 50, 100, 200]
+export const movingAveragesDays = [1, 3, 5, 10, 50, 100, 200]
 
 export const movingAverages:Readonly<Record<number, MovingAverage>> = movingAveragesDays.reduce((averages, days) => {
   averages[days] = new MovingAverage(days * secPerDay)
