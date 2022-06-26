@@ -1,10 +1,9 @@
-import type { BaseTargetEventWithTransactionAndBalance } from '@/entries'
 import type { BaseProvider } from '@ethersproject/providers'
 import type { LastBlockNumber } from './libs/LastBlockNumber'
-import { map, mergeMap, Subject, takeUntil } from 'rxjs'
+import { concatAll, filter, from, map, mergeMap, Subject, takeUntil } from 'rxjs'
 import { filterApprovalEvents, filterLpEvents, filterMinAmountSwapLogs, filterStakingEvents, filterSwapLogs, transfersFilter } from './eventFilters'
 import { humanizateApprovalLog, humanizateLpLog, humanizateStakingLog, humanizateSwapLog, humanizateTransferLog } from './humanizate'
-import { watchLpLogs, watchStakingLogs, watchSwapLog, watchTransfers, SwapEvent } from './watchers'
+import { watchLpLogs, watchStakingLogs, watchSwapLog, watchTransfers } from './watchers'
 import { targetToken } from './projects'
 import { pairs } from './projects'
 import { targetPriceFetcher } from './libs/TargetPriceFetcher'
@@ -15,7 +14,6 @@ import { watchApprovalLogs } from './watchers/approval'
 import { addTransaction } from './transforms'
 import { isLpWithTargetToken } from './utils/isLpWithTargetToken'
 
-const pairsWithTargetToken = pairs.filter(isLpWithTargetToken)
 const destroy$ = new Subject<void>()
 
 export const watch = (wsProvider:BaseProvider, lastBlockNumber: LastBlockNumber) => {
@@ -32,20 +30,18 @@ export const watch = (wsProvider:BaseProvider, lastBlockNumber: LastBlockNumber)
     )
     .subscribe(messagesSubject$)
 
+  const pairsWithTargetToken = from(pairs).pipe(filter(pair => isLpWithTargetToken(pair)))
+
+  const swapLogs = pairsWithTargetToken.pipe(
+    map((pair) => watchSwapLog(wsProvider, pair)),
+    concatAll(),
+    filterMinAmountSwapLogs,
+    mergeMap(addTransaction),
+    takeUntil(destroy$),
+  )
+
   // Handle swap
-  const swapSubject$ = new Subject<BaseTargetEventWithTransactionAndBalance<SwapEvent>>()
-
-  pairsWithTargetToken.forEach((pair) => {
-    watchSwapLog(wsProvider, pair)
-      .pipe(
-        filterMinAmountSwapLogs,
-        mergeMap(addTransaction),
-        takeUntil(destroy$)
-      )
-      .subscribe(swapSubject$)
-  })
-
-  swapSubject$
+  swapLogs
     .pipe(
       filterSwapLogs,
       map(humanizateSwapLog),
@@ -54,35 +50,34 @@ export const watch = (wsProvider:BaseProvider, lastBlockNumber: LastBlockNumber)
     .subscribe(messagesSubject$)
 
   // Handle update prices
-  swapSubject$
-    .pipe(takeUntil(destroy$))
-    .subscribe(targetPriceFetcher.handleSwapLog)
-
+  swapLogs.subscribe(targetPriceFetcher.handleSwapLog)
+    
   // Handle LP
-  pairsWithTargetToken.forEach((pair) => {
-    watchLpLogs(wsProvider, pair)
-      .pipe(
-        filterLpEvents,
-        map(humanizateLpLog),
-        takeUntil(destroy$)
-      )
-      .subscribe(messagesSubject$)
-  })
+  pairsWithTargetToken.pipe(
+    map((pair) => watchLpLogs(wsProvider, pair)),
+    concatAll(),
+    filterLpEvents,
+    map(humanizateLpLog),
+    takeUntil(destroy$)
+  )
+  .subscribe(messagesSubject$)
+
 
   // Handle staking
-  stakingPools.filter((pool) => (
-    pool.earningToken.address === targetToken.address 
-    || pool.stakingToken.address === targetToken.address 
-    || (pool.stakingToken.type === 'LP-TOKEN' && isLpWithTargetToken(pool.stakingToken))
-  )).forEach((stakingPool) => {
-    watchStakingLogs(wsProvider, stakingPool)
-      .pipe(
-        filterStakingEvents,
-        map(humanizateStakingLog),
-        takeUntil(destroy$)
-      )
-      .subscribe(messagesSubject$)
-  })
+  from(stakingPools)
+    .pipe(
+      filter(pool => (
+        pool.earningToken.address === targetToken.address 
+        || pool.stakingToken.address === targetToken.address 
+        || (pool.stakingToken.type === 'LP-TOKEN' && isLpWithTargetToken(pool.stakingToken))
+      )),
+      map((stakingPool) => watchStakingLogs(wsProvider, stakingPool)),
+      concatAll(),
+      filterStakingEvents,
+      map(humanizateStakingLog),
+      takeUntil(destroy$)
+    )
+    .subscribe(messagesSubject$)
 
   // Approve
   watchApprovalLogs(wsProvider, targetToken)
