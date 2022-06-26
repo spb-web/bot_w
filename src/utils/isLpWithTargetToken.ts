@@ -1,5 +1,5 @@
 import type { PairType } from '@/entries'
-import { targetToken } from '../config/tokens'
+import { targetToken } from '../projects'
 
 export const isLpWithTargetToken = (pair:PairType) => {
   return (

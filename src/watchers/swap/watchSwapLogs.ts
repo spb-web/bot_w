@@ -3,7 +3,7 @@ import type { Log } from '@ethersproject/abstract-provider'
 import type { EventFilter } from 'ethers'
 import type { BaseProvider } from '@ethersproject/providers'
 import { Observable } from 'rxjs'
-import BigNumber from 'bignumber.js'
+import { BigNumber } from 'bignumber.js'
 import { id, Interface } from 'ethers/lib/utils'
 
 const abi = [

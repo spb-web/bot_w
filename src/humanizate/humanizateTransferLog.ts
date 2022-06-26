@@ -1,12 +1,11 @@
 import type { TransferEvent } from '@/watchers'
 import type { MessagePayloadType } from '@/libs/TgBot'
+import { AddressZero } from '@ethersproject/constants'
+import { project } from '../projects'
 import { targetPriceFetcher } from '../libs/TargetPriceFetcher'
 import { toLocaleString } from '../utils/toLocaleString'
-import { whalesChatId } from '../config/constants/telegram'
 import { getButtons } from './getButtons'
-
-const NOMINEX_HOT_WALLET = '0x90aFDA51611523bE69abD37e26C2bf9162ACb797'
-const NOMINEX_MONEY_BOX_WALLET = '0xcD58a3928a162C6ec8A7Fe4c9537a322c023af6E'
+import { getWalletString } from './getWalletString'
 
 export const humanizateTransferLog = (log:TransferEvent):MessagePayloadType => {
   const price = targetPriceFetcher.getPrice()
@@ -14,18 +13,17 @@ export const humanizateTransferLog = (log:TransferEvent):MessagePayloadType => {
   const symbol = log.token.symbol
   let text:string
 
-  if (log.from === NOMINEX_HOT_WALLET) {
-    text = `📩 #Отправлено ${toLocaleString(log.amount)} ${symbol} (~ $${toLocaleString(amountCost, true)}) из NOMINEX HOT WALLET в \`\`\`${log.to}\`\`\``
-  } else if (log.from === NOMINEX_MONEY_BOX_WALLET) {
-    text = `📩 #Отправлено ${toLocaleString(log.amount)} ${symbol} (~ $${toLocaleString(amountCost, true)}) из NOMINEX MONEY BOX WALLET в \`\`\`${log.to}\`\`\``
-  } else if (log.from === '0x0000000000000000000000000000000000000000') {
-    text = `🪄 #Отчеканено ${toLocaleString(log.amount)} ${symbol} (~ $${toLocaleString(amountCost, true)})`
+  const from = `из ${getWalletString(log.from)}`
+  const to = `в ${getWalletString(log.to)}`
+
+  if (log.from === AddressZero) {
+    text = `🪄 #Отчеканено ${toLocaleString(log.amount)} ${symbol} (~ $${toLocaleString(amountCost, true)}) на адрес ${to}`
   } else {
-    text = `📩 #Отправлено ${toLocaleString(log.amount)} ${symbol} (~ $${toLocaleString(amountCost, true)}) из \`\`\`${log.from}\`\`\` в \`\`\`${log.to}\`\`\``
+    text = `📩 #Отправлено ${toLocaleString(log.amount)} ${symbol} (~ $${toLocaleString(amountCost, true)}) \n${from} \n${to}`
   }
 
   return {
-    chatId: whalesChatId,
+    chatId: project.telegram.whalesChatId,
     text,
     extra: {
       reply_markup: getButtons(log),

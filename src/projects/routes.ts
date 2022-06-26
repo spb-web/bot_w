@@ -17,4 +17,8 @@ export const routes:Readonly<Record<string, RouterType>> = {
     address: '0x1111111254fb6c44bAC0beD2854e76F90643097d',
     exchangeName: '1Inch',
   },
+  'biswap': {
+    address: '0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8',
+    exchangeName: 'Biswap',
+  },
 }

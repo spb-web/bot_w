@@ -2,10 +2,11 @@ import type { MessagePayloadType } from '@/libs/TgBot'
 import type { ApprovalTokenEvent } from '@/watchers/approval'
 import type { BaseTargetEventWithTransactionAndBalance } from '@/entries'
 import { toLocaleString } from '../utils/toLocaleString'
-import { humanizateBalance, humanizateStakedBalance } from './humanizateBalance'
-import { whalesChatId } from '../config/constants/telegram'
+import { getBalanceString } from './getBalanceString'
+import { getStakedBalance } from './getStakedBalance'
+import { project } from '../projects'
 import { getButtons } from './getButtons'
-import BigNumber from 'bignumber.js'
+import { BigNumber } from 'bignumber.js'
 
 // Чуть меньше, т.к. не везде максимальный апрув
 const MAX_AMOUNT = new BigNumber('0x0fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
@@ -16,13 +17,13 @@ export const humanizateApprovalLog = (log:BaseTargetEventWithTransactionAndBalan
   const response = log.transaction.response
   const symbol = log.token.symbol
   const sender = response ? `С кошелька \`\`\`${response.from}\`\`\`` : 'Не удалось загрузить адрес'
-  const targetTokenBalance = humanizateBalance(log.senderBalance)
-  const targetTokenStaked = humanizateStakedBalance(log.senderStaked)
+  const targetTokenBalance = getBalanceString(log.senderBalance)
+  const targetTokenStaked = getStakedBalance(log.senderStaked)
 
   let text = `🔑 #Аппрув ${amountStr} ${symbol} ${exchageName} \n${sender}\n${targetTokenBalance}\n${targetTokenStaked}`
 
   return {
-    chatId: whalesChatId,
+    chatId: project.telegram.whalesChatId,
     text,
     extra: {
       reply_markup: getButtons(log),

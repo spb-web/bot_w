@@ -1,38 +1,58 @@
-import { existsSync, readFileSync } from 'fs'
-import { writeFile } from 'fs/promises'
-import { join } from 'path'
+import path from 'path'
+import { Storage } from './Storage'
 
-export class LastBlockNumber {
-  private blockNumber:number
-  private filePath:string
+/**
+ * key - project name
+ * 
+ * value - project data
+ */
+export type BlockDbData = { lastBlock: number }
 
-  constructor(filePath:string, minBlockNumber = 0) {
-    this.filePath = filePath
+export class LastBlockNumber extends Storage<BlockDbData> {
+  constructor(projectName: string) {
+    super(
+      path.join(__dirname, `../../runtime/${projectName}/blocksDb.json`),
+      {
+        type: 'object',
+        properties: {
+          lastBlock: {type: 'integer'},
+        },
+        required: ['lastBlock'],
+        additionalProperties: false,
+      }
+    )
 
-    if (existsSync(this.filePath)) {
-      const blockNumber = parseInt(readFileSync(this.filePath).toString(), 10)
-      this.checkBlockNumber(blockNumber)
-  
-      this.blockNumber = Math.max(minBlockNumber, blockNumber)
-    } else {
-      this.blockNumber = minBlockNumber
+    this.readSync()
+
+    if (this.isEmpty) {
+      this.setBlockNumber(0)
+      this.writeSync()
     }
   }
   
-  get():number {
-    return this.blockNumber
+  get lastBlock():number {
+    return this.data.lastBlock
   }
 
-  async processBlockNumber(blockNumber:number):Promise<void> {
+  async saveBlockNumber(blockNumber:number):Promise<void> {
+    this.setBlockNumber(blockNumber)
+    await this.write()
+  }
+
+  private setBlockNumber(blockNumber:number) {
     this.checkBlockNumber(blockNumber)
 
-    if (blockNumber <= this.blockNumber) {
+    if (!this.isEmpty && blockNumber <= this.lastBlock) {
       return
     }
 
-    this.blockNumber = blockNumber
+    if (this.isEmpty) {
+      this.data = { lastBlock: blockNumber }
+    }
 
-    await writeFile(this.filePath, blockNumber.toString())
+    if (!(this.data.lastBlock >= blockNumber)) {
+      this.data.lastBlock = blockNumber
+    }
   }
 
   private checkBlockNumber(blockNumber:number) {
@@ -41,5 +61,3 @@ export class LastBlockNumber {
     }
   }
 }
-
-export const lastBlockNumber = new LastBlockNumber(join(__dirname, '../../runtime/blockNumber'), 1000)

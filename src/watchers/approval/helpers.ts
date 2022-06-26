@@ -2,12 +2,12 @@ import type { Log } from '@ethersproject/abstract-provider'
 import { EventFilter } from 'ethers'
 import type { TokenType } from '@/entries'
 import type { ApprovalTokenEvent } from './types'
-import BigNumber from 'bignumber.js'
+import { BigNumber } from 'bignumber.js'
 import { hexZeroPad, id, Interface } from 'ethers/lib/utils'
 import { getRouterByAddress } from '../../utils/getRouterByAddress'
 import { fetchTransaction } from '../../fetch/fetchTransaction'
 import { fetchTargetTokenBalance } from '../../fetch/fetchTargetTokenBalance'
-import { routes } from '../../config/routes'
+import { routes } from '../../projects'
 
 const abi = [
   'event Approval(address indexed owner, address indexed spender, uint256 value)',

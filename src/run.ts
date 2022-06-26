@@ -1,16 +1,16 @@
-import { BaseProvider, WebSocketProvider } from '@ethersproject/providers'
-import { pairs } from './config/pairs'
-import { targetPriceFetcher } from './libs/TargetPriceFetcher'
-import { tgBot } from './libs/TgBot'
-import { lastBlockNumber } from './libs/LastBlockNumber'
-import { isLpWithTargetToken } from './utils/isLpWithTargetToken'
-import { wsProviderController } from './utils/providers/WsProviderController'
-import { watch } from './watch'
-import { getBlock } from './watchers/block'
-import { movingAverages, movingAveragesDays } from './movingAverage'
-import { humanizateAnalysis } from './humanizate/humanizateAnalysis'
-import { getTechnicalindicators } from './libs/technicalindicators'
-import { getProvider } from './utils/providers/getProvider'
+import { BaseProvider } from '@ethersproject/providers'
+import { pairs, project } from '@/projects'
+import { targetPriceFetcher } from '@/libs/TargetPriceFetcher'
+import { tgBot } from '@/libs/TgBot'
+import { LastBlockNumber } from '@/libs/LastBlockNumber'
+import { isLpWithTargetToken } from '@/utils/isLpWithTargetToken'
+import { wsProviderController } from '@/utils/providers/WsProviderController'
+import { watch } from '@/watch'
+import { getBlock } from '@/watchers/block'
+import { movingAverages, movingAveragesDays } from '@/movingAverage'
+import { humanizateAnalysis } from '@/humanizate/humanizateAnalysis'
+import { getTechnicalindicators } from '@/libs/technicalindicators'
+import { getProvider } from '@/utils/providers/getProvider'
 
 const init = async () => {
   const pairsWithTargetToken = pairs.filter(isLpWithTargetToken)
@@ -22,35 +22,48 @@ const init = async () => {
     // wsProviderController.connect(),
   ])
 
-  tgBot.handleCommand('av', async (ctx) => {
-    getTechnicalindicators()
+  //@ts-ignore
+  tgBot.bot.command('hello', async (ctx) => {
     await ctx.deleteMessage(ctx.message.message_id)
-    const analysis = {
-      currentPrice: movingAverages[10].lastValue(),
-      movingAverages: movingAveragesDays.map((days) => {
-        return {
-          days,
-          movingAverage: movingAverages[days].movingAverage(),
-        }
-      }),
-    }
-    await tgBot.send(
-      humanizateAnalysis(
-        analysis,
-        ctx.chat.id.toString()
-      )
-    )
+    await tgBot.send({
+      text: ctx.message.chat.id.toString(),
+      chatId: ctx.message.chat.id.toString(),
+    })
   })
+
+  if (project.name === 'NMX') {
+    //@ts-ignore
+    tgBot.bot.command('av', async (ctx) => {
+      getTechnicalindicators()
+      await ctx.deleteMessage(ctx.message.message_id)
+      const analysis = {
+        currentPrice: movingAverages[10].lastValue(),
+        movingAverages: movingAveragesDays.map((days) => {
+          return {
+            days,
+            movingAverage: movingAverages[days].movingAverage(),
+          }
+        }),
+      }
+      await tgBot.send(
+        humanizateAnalysis(
+          analysis,
+          ctx.chat.id.toString()
+        )
+      )
+    })
+  }
 }
 
 const run = async (wsProvider:BaseProvider) => {
+  const lastBlockNumber = new LastBlockNumber(project.name)
   const currentBlock = await getBlock('latest')
 
-  watch(wsProvider)
+  watch(wsProvider, lastBlockNumber)
 
-  if (lastBlockNumber.get() < currentBlock.number) {
+  if (lastBlockNumber.lastBlock < currentBlock.number) {
     await tgBot.sendLog(
-      `Последний прочитанный блок: ${lastBlockNumber.get()}\nТекущий блок: ${currentBlock.number}\nПропущено блоков: ${currentBlock.number - lastBlockNumber.get()}`
+      `Последний прочитанный блок: ${lastBlockNumber.lastBlock}\nТекущий блок: ${currentBlock.number}\nПропущено блоков: ${currentBlock.number - lastBlockNumber.lastBlock}`
     )
   }
 

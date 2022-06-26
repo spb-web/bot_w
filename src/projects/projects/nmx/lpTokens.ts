@@ -1,4 +1,4 @@
-import { getPairByAddress } from '../utils/getPairByAddress'
+import { getPairByAddress } from '../../getPairByAddress'
 
 export const lpTokens = {
   pancakeSwap: {

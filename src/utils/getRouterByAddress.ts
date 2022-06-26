@@ -1,4 +1,4 @@
-import { routes } from '../config/routes'
+import { routes } from '../projects'
 import memoizeOne from 'memoize-one'
 
 export const getRouterByAddress = memoizeOne((address?:string) => {

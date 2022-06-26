@@ -1,4 +1,4 @@
-import BigNumber from 'bignumber.js'
+import { BigNumber } from 'bignumber.js'
 
 export const toLocaleString = (bn:BigNumber|number, b=false) => {
   let dec = 2

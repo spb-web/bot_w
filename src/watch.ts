@@ -1,14 +1,14 @@
-import type { BaseTargetEventWithTransactionAndBalance } from './entries'
+import type { BaseTargetEventWithTransactionAndBalance } from '@/entries'
 import type { BaseProvider } from '@ethersproject/providers'
+import type { LastBlockNumber } from './libs/LastBlockNumber'
 import { map, mergeMap, Subject, takeUntil } from 'rxjs'
 import { filterApprovalEvents, filterLpEvents, filterMinAmountSwapLogs, filterStakingEvents, filterSwapLogs, transfersFilter } from './eventFilters'
 import { humanizateApprovalLog, humanizateLpLog, humanizateStakingLog, humanizateSwapLog, humanizateTransferLog } from './humanizate'
 import { watchLpLogs, watchStakingLogs, watchSwapLog, watchTransfers, SwapEvent } from './watchers'
-import { targetToken } from './config/tokens'
-import { pairs } from './config/pairs'
+import { targetToken } from './projects'
+import { pairs } from './projects'
 import { targetPriceFetcher } from './libs/TargetPriceFetcher'
-import { stakingPools } from './config/stakingPools'
-import { lastBlockNumber } from './libs/LastBlockNumber'
+import { stakingPools } from './projects'
 import { watchBlock } from './watchers/block'
 import { MessagePayloadType, tgBot } from './libs/TgBot'
 import { watchApprovalLogs } from './watchers/approval'
@@ -18,7 +18,7 @@ import { isLpWithTargetToken } from './utils/isLpWithTargetToken'
 const pairsWithTargetToken = pairs.filter(isLpWithTargetToken)
 const destroy$ = new Subject<void>()
 
-export const watch = (wsProvider:BaseProvider) => {
+export const watch = (wsProvider:BaseProvider, lastBlockNumber: LastBlockNumber) => {
   destroy$.next()
 
   const messagesSubject$ = new Subject<MessagePayloadType>()
@@ -94,7 +94,7 @@ export const watch = (wsProvider:BaseProvider) => {
   watchBlock(wsProvider)
     .pipe(takeUntil(destroy$))
     .subscribe(async (block) => {
-      await lastBlockNumber.processBlockNumber(block.number)
+      await lastBlockNumber.saveBlockNumber(block.number)
     })
 
   // Telegram messages

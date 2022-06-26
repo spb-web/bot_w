@@ -1,13 +1,13 @@
 import type { Call } from '@/utils/multicall'
-import BigNumber from 'bignumber.js'
+import { BigNumber } from 'bignumber.js'
 import asyncRetry from 'async-retry'
-import { targetToken } from '../config/tokens'
-import { getERC20Contract } from '../utils/getERC20Contract'
-import { getPoolByNameAndExhange } from '../utils/getPoolByNameAndExhange'
+import { targetToken } from '../projects'
+import { getPoolByEarningTokenAndExhange } from '../utils/getPoolByEarningTokenAndExhange'
 import multicall from '../utils/multicall'
+import { StakingContractType } from '@/entries'
 
 const TEN_BN = new BigNumber(10)
-const targetTokenStakingPool = getPoolByNameAndExhange('NMX', 'Nomiswap')
+const targetTokenStakingPool = getPoolByEarningTokenAndExhange(targetToken.address)
 const abi = [
   {
     "inputs": [
@@ -72,16 +72,26 @@ export const fetchTargetTokenBalance = (address:string):Promise<{balance: BigNum
         address: targetToken.address,
         params: [address],
       },
-      {
+    ]
+
+    if (targetTokenStakingPool.contractType === StakingContractType.MULTY_CONTRCATS) {
+      calls.push({
         name: 'stakers',
         address: targetTokenStakingPool.address,
         params: [address],
-      }
-    ]
+      })
+    }
 
-    const [[rawBalance], { amount: rawStaked }] = await multicall(abi, calls)
+    let staked = new BigNumber(0)
+
+    const returnData = await multicall(abi, calls)
+    const [[rawBalance]] = returnData
     const balance = new BigNumber(rawBalance._hex).div(TEN_BN.pow(targetToken.decimals))
-    const staked = new BigNumber(rawStaked._hex).div(TEN_BN.pow(targetToken.decimals))
+
+    if (targetTokenStakingPool.contractType === StakingContractType.MULTY_CONTRCATS) {
+      const [{ amount: rawStaked }] = returnData
+      staked = new BigNumber(rawStaked._hex).div(TEN_BN.pow(targetToken.decimals))
+    }
 
     return {
       balance,

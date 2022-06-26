@@ -1,12 +1,12 @@
 import type { PairType, TokenType } from '@/entries'
-import { pairs } from '../config/pairs'
+import { pairs } from '../projects'
 import { isStablecoin } from './isStablecoin'
 
 export const getTokenPriceRoute = (token:TokenType, path:PairType[] = []):PairType[] => {
   const foundPair = pairs.find((pair) => (
     (
       pair.token0.address === token.address
-      || pair.token0.address === token.address
+      || pair.token1.address === token.address
     )
     && !path.includes(pair)
   ))

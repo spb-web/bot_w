@@ -7,6 +7,12 @@ export const tokens:Readonly<Record<string, TokenType>> = {
     decimals: 18,
     type: 'TOKEN',
   },
+  bsw: {
+    symbol: 'BSW',
+    address: '0x965F527D9159dCe6288a2219DB51fc6Eef120dD1',
+    decimals: 18,
+    type: 'TOKEN',
+  },
   usdt: {
     symbol: 'USDT',
     address: '0x55d398326f99059fF775485246999027B3197955',
@@ -67,9 +73,13 @@ export const tokens:Readonly<Record<string, TokenType>> = {
     decimals: 18,
     type: 'TOKEN',
   },
+  bfg: {
+    symbol: 'BFG',
+    address: '0xBb46693eBbEa1aC2070E59B4D043b47e2e095f86',
+    decimals: 18,
+    type: 'TOKEN',
+  },
 }
-
-export const targetToken = tokens.nmx
 
 export const stablesCoins = [
   tokens.usdt,

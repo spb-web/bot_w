@@ -1,5 +1,5 @@
 import type { PairType } from '@/entries'
-import type BigNumber from 'bignumber.js'
+import type {BigNumber} from 'bignumber.js'
 import type { BaseTargetEvent } from '@/entries'
 
 export type MintLpEvent = Readonly<{

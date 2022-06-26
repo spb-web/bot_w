@@ -1,5 +1,5 @@
-import { PairType } from '@/entries'
-import { pairs } from '../config/pairs'
+import type { PairType } from '@/entries'
+import { pairs } from './pairs'
 
 export const getPairByAddress = (address: string):PairType => {
   const foundPair = pairs.find(pair => pair.address === address)

@@ -2,6 +2,7 @@ import type { PairType } from '@/entries'
 import { tokens } from './tokens'
 
 export const pairs:ReadonlyArray<PairType> = [
+  // Nomiswap [BEGIN]
   {
     token0: tokens.usdt,
     token1: tokens.nmx,
@@ -119,4 +120,35 @@ export const pairs:ReadonlyArray<PairType> = [
     type: 'LP-TOKEN',
     decimals: 18,
   },
+  // Nomiswap [END]
+
+  // Biswap [BEGIN]
+  {
+    token0: tokens.bsw,
+    token1: tokens.wbnb,
+    symbol: 'BSW-WBNB LP',
+    address: '0x46492B26639Df0cda9b2769429845cb991591E0A',
+    exchangeName: 'Biswap',
+    type: 'LP-TOKEN',
+    decimals: 18,
+  },
+  {
+    token0: tokens.bsw,
+    token1: tokens.bfg,
+    symbol: 'BSW-BFG LP',
+    address: '0x88d483697F8E3FC8f5674F322d3a59ce786aCcD5',
+    exchangeName: 'Biswap',
+    type: 'LP-TOKEN',
+    decimals: 18,
+  },
+  {
+    token0: tokens.usdt,
+    token1: tokens.bsw,
+    symbol: 'USDT-BSW LP',
+    address: '0x2b30c317ceDFb554Ec525F85E79538D59970BEb0',
+    exchangeName: 'Biswap',
+    type: 'LP-TOKEN',
+    decimals: 18,
+  },
+  // Biswap [END]
 ]

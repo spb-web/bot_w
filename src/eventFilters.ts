@@ -1,14 +1,12 @@
 import type { SwapEvent, TransferEvent, BurnLpEvent, MintLpEvent, StakedEvent, UnstakedEvent, RewardedEvent } from './watchers'
-import type { BaseTargetEventWithTransactionAndBalance } from './entries'
-import BigNumber from 'bignumber.js'
+import type { BaseTargetEventWithTransactionAndBalance } from '@/entries'
+import { BigNumber } from 'bignumber.js'
 import { filter } from 'rxjs'
-import { balanceAlertAmount, minLpAmountPrice, minSwapAmountPrice, minSwapAmountPriceWithLargeBalance, minTransferAmountPrice, rewardAmountPrice, stakeLpAmountPrice } from './config/constants/limits'
-import { pairs } from './config/pairs'
-import { routes } from './config/routes'
-import { stakingPools } from './config/stakingPools'
-import { targetToken } from './config/tokens'
+import { pairs, stakingPools, routes, isTargetToken, limits } from './projects'
 import { targetPriceFetcher } from './libs/TargetPriceFetcher'
 import { ApprovalTokenEvent } from './watchers/approval'
+
+const {balanceAlertAmount, minLpAmountPrice, minSwapAmountPrice, minSwapAmountPriceWithLargeBalance, minTransferAmountPrice, rewardAmountPrice, stakeLpAmountPrice} = limits
 
 const pairsAddresses = pairs.map((pair) => pair.address)
 const stakingPoolsAddresses = stakingPools.map((stakingPool) => stakingPool.address)
@@ -33,7 +31,7 @@ export const filterSwapLogs = filter<BaseTargetEventWithTransactionAndBalance<Sw
     const targetTokenPrice = targetPriceFetcher.getPrice()
 
     return (
-      event.pair.token0.address === targetToken.address
+      isTargetToken(event.pair.token0.address)
         ? event.amount0In.times(targetTokenPrice).gte(minSwapAmountPrice) || event.amount0Out.times(targetTokenPrice).gte(minSwapAmountPrice)
         : event.amount1In.times(targetTokenPrice).gte(minSwapAmountPrice) || event.amount1Out.times(targetTokenPrice).gte(minSwapAmountPrice)
     ) || (
@@ -47,7 +45,7 @@ export const filterMinAmountSwapLogs = filter<SwapEvent>(
     const targetTokenPrice = targetPriceFetcher.getPrice()
 
     return (
-      event.pair.token0.address === targetToken.address
+      isTargetToken(event.pair.token0.address)
         ? event.amount0In.times(targetTokenPrice).gte(minSwapAmountPriceWithLargeBalance) || event.amount0Out.times(targetTokenPrice).gte(minSwapAmountPriceWithLargeBalance)
         : event.amount1In.times(targetTokenPrice).gte(minSwapAmountPriceWithLargeBalance) || event.amount1Out.times(targetTokenPrice).gte(minSwapAmountPriceWithLargeBalance)
     )
@@ -58,7 +56,7 @@ export const filterLpEvents = filter<MintLpEvent|BurnLpEvent>(
   (event) => {
     const targetTokenPrice = targetPriceFetcher.getPrice()
 
-    return event.pair.token0.address === targetToken.address
+    return isTargetToken(event.pair.token0.address)
       ? event.amount0.times(targetTokenPrice).gte(minLpAmountPrice / 2)
       : event.amount1.times(targetTokenPrice).gte(minLpAmountPrice / 2)
   }
@@ -66,10 +64,11 @@ export const filterLpEvents = filter<MintLpEvent|BurnLpEvent>(
 
 export const filterStakingEvents = filter<StakedEvent | UnstakedEvent | RewardedEvent>(
   (event) => {
+    const { stakingPool, amount } = event.eventData
     if (
-      event.stakingPool.stakingToken.type === 'LP-TOKEN'
-      && event.stakingPool.stakingToken.token0.address !== targetToken.address
-      && event.stakingPool.stakingToken.token1.address !== targetToken.address
+      stakingPool.stakingToken.type === 'LP-TOKEN'
+      && !isTargetToken(stakingPool.stakingToken.token0.address)
+      && !isTargetToken(stakingPool.stakingToken.token1.address)
       && event.name !== 'Rewarded'
     ) {
       return false
@@ -78,21 +77,21 @@ export const filterStakingEvents = filter<StakedEvent | UnstakedEvent | Rewarded
     const targetTokenPrice = targetPriceFetcher.getPrice()
 
     if (event.name === 'Rewarded') {
-      return event.amount.times(targetTokenPrice).gte(rewardAmountPrice)
+      return amount.times(targetTokenPrice).gte(rewardAmountPrice)
     }
 
-    const stakingToken = event.stakingPool.stakingToken
+    const stakingToken = stakingPool.stakingToken
     let stakingTokenPrice:BigNumber
 
     if (stakingToken.type === 'LP-TOKEN') {
       stakingTokenPrice = targetPriceFetcher.getLpPrice(stakingToken)
-    } else if (stakingToken.address === targetToken.address) {
+    } else if (isTargetToken(stakingToken.address)) {
       stakingTokenPrice = targetTokenPrice
     } else {
       throw new Error('[filterStakingEvents]: unknow token type')
     }
 
-    return event.amount.times(stakingTokenPrice).gte(stakeLpAmountPrice)
+    return amount.times(stakingTokenPrice).gte(stakeLpAmountPrice)
   }
 )
 

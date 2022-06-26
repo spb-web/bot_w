@@ -1,10 +1,12 @@
 import type { ExtraReplyMessage } from 'telegraf/typings/telegram-types'
 import type { Message } from 'telegraf/typings/core/types/typegram'
+import PQueue from 'p-queue'
+import delay from 'delay'
 import { Telegraf } from 'telegraf'
-import { botToken, logsChatId } from '../../config/constants/telegram'
-import { EditableMessage } from './EditableMessage'
+import { project } from '@/projects'
 import { escape } from './helpers'
 
+const { telegram: { botToken, logsChatId } } = project
 
 export type MessagePayloadType = {
   text: string,
@@ -14,7 +16,8 @@ export type MessagePayloadType = {
 }
 
 export class TgBot {
-  private bot:Telegraf
+  public readonly bot:Telegraf
+  private queue = new PQueue({ concurrency: 1 })
 
   constructor(botToken:string) {
     this.bot = new Telegraf(botToken)
@@ -36,37 +39,39 @@ export class TgBot {
   }
   
   public async send(payload:MessagePayloadType):Promise<Message.TextMessage|Message.PhotoMessage> {
-    let message:Message.TextMessage|Message.PhotoMessage 
-    
-    if (payload.source) {
-      message = await this.bot.telegram.sendPhoto(
-        payload.chatId,
-        { source: payload.source },
-        {
-          caption: escape(payload.text),
-          parse_mode: 'MarkdownV2',
-          ...payload.extra,
-        },
-      )
-    } else {
-      message = await this.bot.telegram.sendMessage(
-        payload.chatId,
-        escape(payload.text),
-        { parse_mode: 'MarkdownV2', ...payload.extra, }
-      )
-    }
+    return new Promise((resolve, reject) => {      
+      this.queue.add(async () => {
+        let message:Message.TextMessage|Message.PhotoMessage 
 
-    return message
-  }
+        try {
+          if (payload.source) {
+            message = await this.bot.telegram.sendPhoto(
+              payload.chatId,
+              { source: payload.source },
+              {
+                caption: escape(payload.text),
+                parse_mode: 'MarkdownV2',
+                ...payload.extra,
+              },
+            )
+          } else {
+            message = await this.bot.telegram.sendMessage(
+              payload.chatId,
+              escape(payload.text),
+              { parse_mode: 'MarkdownV2', ...payload.extra, }
+            )
+          }
 
-  public async createEditableMessage(payload:MessagePayloadType) {
-    const message = await this.send(payload)
+          resolve(message)
+          
+          await delay(1000)
+        } catch (error) {
+          reject(error)
 
-    return new EditableMessage(this.bot, message.chat.id, message.message_id)
-  }
-
-  public handleCommand(...params: Parameters<typeof this.bot.command>) {
-    this.bot.command(...params)
+          throw error
+        }
+      })
+    })
   }
 }
 

@@ -2,7 +2,7 @@ import type { Log } from '@ethersproject/abstract-provider'
 import type { EventFilter } from 'ethers'
 import type { BaseTargetEvent, TokenType } from '@/entries'
 import type { BaseProvider } from '@ethersproject/providers'
-import BigNumber from 'bignumber.js'
+import { BigNumber } from 'bignumber.js'
 import { id, Interface } from 'ethers/lib/utils'
 import { Observable } from 'rxjs'
 

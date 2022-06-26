@@ -2,7 +2,7 @@ import type { Log } from '@ethersproject/abstract-provider'
 import type { EventFilter } from 'ethers'
 import type { PairType } from '@/entries'
 import type { BurnLpEvent, MintLpEvent } from './types'
-import BigNumber from 'bignumber.js'
+import { BigNumber } from 'bignumber.js'
 import { id, Interface } from 'ethers/lib/utils'
 
 export const getEventFilter = (address:string):EventFilter => {

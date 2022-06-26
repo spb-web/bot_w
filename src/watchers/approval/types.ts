@@ -1,4 +1,4 @@
-import type BigNumber from 'bignumber.js'
+import type { BigNumber } from 'bignumber.js'
 import type { BaseTargetEvent, TokenType } from '@/entries'
 
 export type ApprovalTokenEvent = Readonly<{

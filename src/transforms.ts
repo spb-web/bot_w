@@ -1,7 +1,7 @@
+import type { BaseTargetEvent, BaseTargetEventWithTransactionAndBalance } from '@/entries'
 import { fetchTransaction } from './fetch/fetchTransaction'
-import { BaseTargetEvent, BaseTargetEventWithTransactionAndBalance } from './entries'
 import { fetchTargetTokenBalance } from './fetch/fetchTargetTokenBalance'
-import BigNumber from 'bignumber.js'
+import { BigNumber } from 'bignumber.js'
 
 export const addTransaction = async <E extends BaseTargetEvent>(event:E):Promise<BaseTargetEventWithTransactionAndBalance<E>> => {
   const transaction = await fetchTransaction(event.rawLog.transactionHash)
@@ -11,6 +11,9 @@ export const addTransaction = async <E extends BaseTargetEvent>(event:E):Promise
 
   return {
     ...event,
+    addressesInfo: {
+
+    },
     transaction,
     senderBalance: senderTokensAmount?.balance ?? new BigNumber(-1),
     senderStaked: senderTokensAmount?.staked ?? new BigNumber(-1),

@@ -1,6 +1,6 @@
-import { BaseTargetEventWithTransaction } from '@/entries'
-import { get } from 'lodash'
+import type { BaseTargetEventWithTransaction } from '@/entries'
 import type { Log } from '@ethersproject/abstract-provider'
+import { get } from 'lodash'
 import { bscscanLink } from '../utils/bscscanLink'
 
 export const getButtons = (log: BaseTargetEventWithTransaction<{ rawLog: Log}> | { rawLog: Log}) => {

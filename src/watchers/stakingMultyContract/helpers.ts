@@ -3,7 +3,7 @@ import type { EventFilter } from 'ethers'
 import type { StakingPoolType } from '@/entries'
 import type { RewardedEvent, StakedEvent, UnstakedEvent } from './types'
 import { id, Interface } from 'ethers/lib/utils'
-import BigNumber from 'bignumber.js'
+import { BigNumber } from 'bignumber.js'
 
 const abi = [
   'event Staked(address indexed owner, uint128 amount)',
@@ -35,9 +35,11 @@ export const parseRawStakingLog = (stakingPool:StakingPoolType, rawLog:Log):Stak
     case 'Staked': {
       const stakedEvent:StakedEvent = {
         name: 'Staked',
-        owner: log.args[0],
-        amount: new BigNumber(log.args[1]._hex).div(10**18),
-        stakingPool,
+        eventData: {
+          owner: log.args[0],
+          amount: new BigNumber(log.args[1]._hex).div(10**18),
+          stakingPool,
+        },
         rawLog,
       }
 
@@ -47,10 +49,12 @@ export const parseRawStakingLog = (stakingPool:StakingPoolType, rawLog:Log):Stak
     case 'Unstaked': {
       const stakedEvent:UnstakedEvent = {
         name: 'Unstaked',
-        from: log.args[0],
-        to: log.args[1],
-        amount: new BigNumber(log.args[2]._hex).div(10**18),
-        stakingPool,
+        eventData: {
+          from: log.args[0],
+          to: log.args[1],
+          amount: new BigNumber(log.args[2]._hex).div(10**18),
+          stakingPool,
+        },
         rawLog,
       }
 
@@ -60,10 +64,12 @@ export const parseRawStakingLog = (stakingPool:StakingPoolType, rawLog:Log):Stak
     case 'Rewarded': {
       const stakedEvent:RewardedEvent = {
         name: 'Rewarded',
-        from: log.args[0],
-        to: log.args[1],
-        amount: new BigNumber(log.args[2]._hex).div(10**18),
-        stakingPool,
+        eventData: {
+          from: log.args[0],
+          to: log.args[1],
+          amount: new BigNumber(log.args[2]._hex).div(10**18),
+          stakingPool,
+        },
         rawLog,
       }
 
