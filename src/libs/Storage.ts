@@ -31,6 +31,15 @@ export class Storage<T> {
 
   set data(val:T) {
     this._data = val
+    this.validateAndThrowError(val)
+  }
+
+  private validateAndThrowError(val:T) {
+    const isValid = this.validate(val)
+    
+    if (!isValid) {
+      throw new Error(`[Storage.validateAndThrowError]: invalid Data.\n ${this.validate.errors?.join('\n')}`)
+    }
   }
 
   public async read() {
@@ -58,12 +67,6 @@ export class Storage<T> {
       data = JSON.parse(dataRaw)
     } catch (error) {
       data = null
-    } 
-
-    const isValid = this.validate(data)
-    
-    if (!isValid) {
-      throw new Error(`[Storage.setRawData]: invalid Data.\n ${this.validate.errors?.join('\n')}`)
     }
 
     this._data = data

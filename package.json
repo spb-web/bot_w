@@ -24,7 +24,6 @@
     "firebase": "^9.8.3",
     "fs-extra": "10.1.0",
     "lodash": "4.17.21",
-    "lowdb": "3.0.0",
     "memoize-one": "^6.0.0",
     "module-alias": "2.2.2",
     "p-queue": "6.6.2",
