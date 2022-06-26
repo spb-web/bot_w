@@ -70,7 +70,11 @@ export const watch = (wsProvider:BaseProvider, lastBlockNumber: LastBlockNumber)
   })
 
   // Handle staking
-  stakingPools.forEach((stakingPool) => {
+  stakingPools.filter((pool) => (
+    pool.earningToken.address === targetToken.address 
+    || pool.stakingToken.address === targetToken.address 
+    || (pool.stakingToken.type === 'LP-TOKEN' && isLpWithTargetToken(pool.stakingToken))
+  )).forEach((stakingPool) => {
     watchStakingLogs(wsProvider, stakingPool)
       .pipe(
         filterStakingEvents,
