@@ -1,7 +1,7 @@
 import { createCanvas } from 'canvas'
 import interpolate from 'color-interpolate'
-
-import { toLocaleString } from '../utils/toLocaleString'
+import { project } from '@/projects'
+import { toLocaleString } from '@/utils/toLocaleString'
 
 export type HumanizateAnalysisPayload = {
   currentPrice: number,
@@ -132,6 +132,7 @@ export const humanizateAnalysis = (analysis: HumanizateAnalysisPayload, chatId: 
   })
 
   text+=`\nПродавать: ${sellRe}; Нейтрально: ${holdRe}; Покупать: ${buyRe} \n`
+  text+=`\n\n#${project.name}`
 
   const totalRe = sellRe + holdRe + buyRe
   const indx = ((((sellRe - buyRe + (holdRe / 2)) / totalRe / 2) + 0.5) * (Math.PI / 5 * 4) + Math.PI / 10) / Math.PI

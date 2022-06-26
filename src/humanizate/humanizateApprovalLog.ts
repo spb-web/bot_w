@@ -12,15 +12,17 @@ import { BigNumber } from 'bignumber.js'
 const MAX_AMOUNT = new BigNumber('0x0fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
 
 export const humanizateApprovalLog = (log:BaseTargetEventWithTransactionAndBalance<ApprovalTokenEvent>): MessagePayloadType => {
+  const exchageName = log.exchageName
+  const tags = [`#${project.name}`, `#${exchageName}`, '#Аппрув']
   const amountStr = MAX_AMOUNT.lte(log.rawAmount) ? 'максимального кол-ва' : toLocaleString(log.amount)
-  const exchageName = `на #${log.exchageName}`
   const response = log.transaction.response
   const symbol = log.token.symbol
   const sender = response ? `С кошелька \`\`\`${response.from}\`\`\`` : 'Не удалось загрузить адрес'
   const targetTokenBalance = getBalanceString(log.senderBalance)
   const targetTokenStaked = getStakedBalance(log.senderStaked)
 
-  let text = `🔑 #Аппрув ${amountStr} ${symbol} ${exchageName} \n${sender}\n${targetTokenBalance}\n${targetTokenStaked}`
+  let text = `🔑 Аппрув ${amountStr} ${symbol} на ${exchageName} \n${sender}\n${targetTokenBalance}\n${targetTokenStaked}`
+  text += `\n\n${tags.join(' ')}`
 
   return {
     chatId: project.telegram.whalesChatId,
