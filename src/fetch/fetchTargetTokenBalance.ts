@@ -86,11 +86,11 @@ export const fetchTargetTokenBalance = (address:string):Promise<{balance: BigNum
       let staked = new BigNumber(0)
   
       const returnData = await multicall(abi, calls)
-      const [[rawBalance]] = returnData
+      const [rawBalance] = returnData[0]
       const balance = new BigNumber(rawBalance._hex).div(TEN_BN.pow(targetToken.decimals))
   
       if (targetTokenStakingPool.contractType === StakingContractType.MULTY_CONTRCATS) {
-        const [{ amount: rawStaked }] = returnData
+        const { amount: rawStaked } = returnData[1]
         staked = new BigNumber(rawStaked._hex).div(TEN_BN.pow(targetToken.decimals))
       }
   
