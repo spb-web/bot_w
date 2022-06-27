@@ -44,9 +44,13 @@ export type BaseTargetEvent = Readonly<{
   rawLog: Log,
 }>
 
+export type AddressInfoType = {
+  isContract: boolean
+}
+
 export type BaseTargetEventWithTransaction<E extends BaseTargetEvent> = E & Readonly<{
   transaction: TransactionData
-  addressesInfo: Record<string, { isContract: boolean }>,
+  addressesInfo: Record<string, AddressInfoType>,
 }>
 
 export type BaseTargetEventWithTransactionAndBalance<E extends BaseTargetEvent> = BaseTargetEventWithTransaction<E> & Readonly<{

@@ -18,6 +18,8 @@ export class CheckAddress extends Storage<Record<string, boolean>> {
 
     this.provider = provider
 
+    this.readSync()
+
     if (this.isEmpty) {
       this.data = {}
 

@@ -25,6 +25,7 @@ export const watch = (wsProvider:BaseProvider, lastBlockNumber: LastBlockNumber)
   watchTransfers(wsProvider, targetToken)
     .pipe(
       transfersFilter,
+      mergeMap(addTransaction),
       map(humanizateTransferLog),
       takeUntil(destroy$)
     )
@@ -57,6 +58,7 @@ export const watch = (wsProvider:BaseProvider, lastBlockNumber: LastBlockNumber)
     map((pair) => watchLpLogs(wsProvider, pair)),
     concatAll(),
     filterLpEvents,
+    mergeMap(addTransaction),
     map(humanizateLpLog),
     takeUntil(destroy$)
   )
@@ -74,6 +76,7 @@ export const watch = (wsProvider:BaseProvider, lastBlockNumber: LastBlockNumber)
       map((stakingPool) => watchStakingLogs(wsProvider, stakingPool)),
       concatAll(),
       filterStakingEvents,
+      mergeMap(addTransaction),
       map(humanizateStakingLog),
       takeUntil(destroy$)
     )

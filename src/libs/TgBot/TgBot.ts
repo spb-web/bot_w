@@ -34,7 +34,10 @@ export class TgBot {
   public async sendLog(text:string) {
     await this.send({
       chatId: logsChatId,
-      text
+      text,
+      extra: {
+        parse_mode: 'HTML',
+      }
     })
   }
   
@@ -64,7 +67,7 @@ export class TgBot {
 
           resolve(message)
           
-          await delay(1000)
+          await delay(2000)
         } catch (error) {
           reject(error)
 
