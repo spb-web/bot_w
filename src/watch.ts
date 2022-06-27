@@ -1,6 +1,6 @@
 import type { BaseProvider } from '@ethersproject/providers'
 import type { LastBlockNumber } from './libs/LastBlockNumber'
-import { concatAll, filter, from, map, mergeMap, Subject, takeUntil } from 'rxjs'
+import { filter, from, map, mergeMap, Subject, takeUntil } from 'rxjs'
 import { filterApprovalEvents, filterLpEvents, filterMinAmountSwapLogs, filterStakingEvents, filterSwapLogs, transfersFilter } from './eventFilters'
 import { humanizateApprovalLog, humanizateLpLog, humanizateStakingLog, humanizateSwapLog, humanizateTransferLog } from './humanizate'
 import { watchLpLogs, watchStakingLogs, watchSwapLog, watchTransfers } from './watchers'
@@ -34,8 +34,7 @@ export const watch = (wsProvider:BaseProvider, lastBlockNumber: LastBlockNumber)
   const pairsWithTargetToken = from(pairs).pipe(filter(pair => isLpWithTargetToken(pair)))
 
   const swapLogs = pairsWithTargetToken.pipe(
-    map((pair) => watchSwapLog(wsProvider, pair)),
-    concatAll(),
+    mergeMap((pair) => watchSwapLog(wsProvider, pair)),
     filterMinAmountSwapLogs,
     mergeMap(addTransaction),
     takeUntil(destroy$),
@@ -55,8 +54,7 @@ export const watch = (wsProvider:BaseProvider, lastBlockNumber: LastBlockNumber)
     
   // Handle LP
   pairsWithTargetToken.pipe(
-    map((pair) => watchLpLogs(wsProvider, pair)),
-    concatAll(),
+    mergeMap((pair) => watchLpLogs(wsProvider, pair)),
     filterLpEvents,
     mergeMap(addTransaction),
     map(humanizateLpLog),
@@ -74,7 +72,6 @@ export const watch = (wsProvider:BaseProvider, lastBlockNumber: LastBlockNumber)
         || (pool.stakingToken.type === 'LP-TOKEN' && isLpWithTargetToken(pool.stakingToken))
       )),
       mergeMap((stakingPool) => watchStakingLogs(wsProvider, stakingPool)),
-      // concatAll(),
       filterStakingEvents,
       mergeMap(addTransaction),
       map(humanizateStakingLog),
