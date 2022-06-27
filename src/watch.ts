@@ -16,37 +16,34 @@ import { isLpWithTargetToken } from './utils/isLpWithTargetToken'
 
 const destroy$ = new Subject<void>()
 
-export const watch = (wsProvider:BaseProvider, lastBlockNumber: LastBlockNumber) => {
-  destroy$.next()
-
+export const watch = (provider:BaseProvider, lastBlockNumber: LastBlockNumber) => {
   const messagesSubject$ = new Subject<MessagePayloadType>()
 
   // Handel transfers
-  watchTransfers(wsProvider, targetToken)
+  watchTransfers(provider, targetToken)
     .pipe(
       transfersFilter,
       mergeMap(addTransaction),
       map(humanizateTransferLog),
-      takeUntil(destroy$)
     )
+    .pipe(takeUntil(destroy$))
     .subscribe(messagesSubject$)
 
   const pairsWithTargetToken = from(pairs).pipe(filter(pair => isLpWithTargetToken(pair)))
 
-  const swapLogs = pairsWithTargetToken.pipe(
-    mergeMap((pair) => watchSwapLog(wsProvider, pair)),
-    filterMinAmountSwapLogs,
-    mergeMap(addTransaction),
-    takeUntil(destroy$),
-  )
+  const swapLogs = pairsWithTargetToken
+    .pipe(mergeMap((pair) => watchSwapLog(provider, pair)))
+    .pipe(takeUntil(destroy$))
 
   // Handle swap
   swapLogs
     .pipe(
+      filterMinAmountSwapLogs,
+      mergeMap(addTransaction),
       filterSwapLogs,
       map(humanizateSwapLog),
-      takeUntil(destroy$),
     )
+    .pipe(takeUntil(destroy$))
     .subscribe(messagesSubject$)
 
   // Handle update prices
@@ -54,12 +51,12 @@ export const watch = (wsProvider:BaseProvider, lastBlockNumber: LastBlockNumber)
     
   // Handle LP
   pairsWithTargetToken.pipe(
-    mergeMap((pair) => watchLpLogs(wsProvider, pair)),
+    mergeMap((pair) => watchLpLogs(provider, pair)),
     filterLpEvents,
     mergeMap(addTransaction),
     map(humanizateLpLog),
-    takeUntil(destroy$)
   )
+  .pipe(takeUntil(destroy$))
   .subscribe(messagesSubject$)
 
 
@@ -71,26 +68,26 @@ export const watch = (wsProvider:BaseProvider, lastBlockNumber: LastBlockNumber)
         || pool.stakingToken.address === targetToken.address 
         || (pool.stakingToken.type === 'LP-TOKEN' && isLpWithTargetToken(pool.stakingToken))
       )),
-      mergeMap((stakingPool) => watchStakingLogs(wsProvider, stakingPool)),
+      mergeMap((stakingPool) => watchStakingLogs(provider, stakingPool)),
       filterStakingEvents,
       mergeMap(addTransaction),
       map(humanizateStakingLog),
-      takeUntil(destroy$)
     )
+    .pipe(takeUntil(destroy$))
     .subscribe(messagesSubject$)
 
   // Approve
-  watchApprovalLogs(wsProvider, targetToken)
+  watchApprovalLogs(provider, targetToken)
     .pipe(
       mergeMap(addTransaction),
       filterApprovalEvents,
       map(humanizateApprovalLog),
-      takeUntil(destroy$)
     )
+    .pipe(takeUntil(destroy$))
     .subscribe(messagesSubject$)
 
   // Blocks number
-  watchBlock(wsProvider)
+  watchBlock(provider)
     .pipe(takeUntil(destroy$))
     .subscribe(async (block) => {
       await lastBlockNumber.saveBlockNumber(block.number)
@@ -99,15 +96,15 @@ export const watch = (wsProvider:BaseProvider, lastBlockNumber: LastBlockNumber)
   // Telegram messages
   messagesSubject$
     .pipe(takeUntil(destroy$))
-    .subscribe(
-      (messagePayload) => tgBot.send(messagePayload),
-      (error) => {
+    .subscribe({
+      next: (messagePayload) => tgBot.send(messagePayload),
+      complete: () => tgBot.sendLog(`messagesSubject completed`),
+      error: (error) => {
         console.error(error)
+
+        destroy$.next()
 
         tgBot.sendLog(`messagesSubject error ${JSON.stringify(error?.message)}`)
       },
-      () => {
-        tgBot.sendLog(`messagesSubject completed`)
-      }
-    )
+    })
 }

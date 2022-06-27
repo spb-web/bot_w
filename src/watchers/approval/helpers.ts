@@ -5,9 +5,7 @@ import type { ApprovalTokenEvent } from './types'
 import { BigNumber } from 'bignumber.js'
 import { hexZeroPad, id, Interface } from 'ethers/lib/utils'
 import { getRouterByAddress } from '../../utils/getRouterByAddress'
-import { fetchTransaction } from '../../fetch/fetchTransaction'
-import { fetchTargetTokenBalance } from '../../fetch/fetchTargetTokenBalance'
-import { routes } from '../../projects'
+import { routes } from '@/projects'
 
 const abi = [
   'event Approval(address indexed owner, address indexed spender, uint256 value)',
@@ -21,7 +19,7 @@ export const getEventFilter = (address:string, spender:string|string[]|null = nu
     topics: [
       id('Approval(address,address,uint256)'),
       // @ts-ignore
-      null,
+      spender,
       Object.values(routes).map(router => hexZeroPad(router.address, 32))
     ]
   }

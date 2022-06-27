@@ -27,7 +27,7 @@ export const watchTransfers = (wsProvider:BaseProvider, token:TokenType) => {
   }
 
   const observable = new Observable<TransferEvent>((subscriber) => {
-    console.debug(`[watchTransfers]: subscribed to ${token.address}`)
+    console.debug(`[watchTransfers]: subscribed to token ${token.address}`)
 
     const handleTransfer = (rawLog:Log) => {
       const log = nmxInterface.parseLog(rawLog)

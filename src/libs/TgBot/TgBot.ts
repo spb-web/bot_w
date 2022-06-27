@@ -17,7 +17,7 @@ export type MessagePayloadType = {
 
 export class TgBot {
   public readonly bot:Telegraf
-  private queue = new PQueue({ concurrency: 1 })
+  private queue = new PQueue({ concurrency: 1, autoStart: true })
 
   constructor(botToken:string) {
     this.bot = new Telegraf(botToken)
