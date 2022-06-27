@@ -70,8 +70,6 @@ const run = async (wsProvider:BaseProvider) => {
   wsProviderController.once('connected', run)
 }
 
-run(getProvider())
-
 init()
   .then(() => wsProviderController.waitWsConnect())
   .then(run)
