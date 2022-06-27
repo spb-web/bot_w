@@ -73,8 +73,8 @@ export const watch = (wsProvider:BaseProvider, lastBlockNumber: LastBlockNumber)
         || pool.stakingToken.address === targetToken.address 
         || (pool.stakingToken.type === 'LP-TOKEN' && isLpWithTargetToken(pool.stakingToken))
       )),
-      map((stakingPool) => watchStakingLogs(wsProvider, stakingPool)),
-      concatAll(),
+      mergeMap((stakingPool) => watchStakingLogs(wsProvider, stakingPool)),
+      // concatAll(),
       filterStakingEvents,
       mergeMap(addTransaction),
       map(humanizateStakingLog),
