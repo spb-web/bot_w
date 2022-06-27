@@ -28,6 +28,8 @@ export class CheckAddress extends Storage<Record<string, boolean>> {
   }
 
   public async isContract(address:string) {
+    await this.read()
+
     if (Object.hasOwnProperty.call(this.data, address)) {
       return this.data[address]
     } else {
