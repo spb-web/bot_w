@@ -4,6 +4,7 @@ import type { TransactionData } from './fetch/fetchTransaction'
 
 export enum StakingContractType {
   MULTY_CONTRCATS,
+  MULTY_CONTRCATS_AUTO,
   MASTER_CHEF_V1,
   MASTER_CHEF_V2,
 }
