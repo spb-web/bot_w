@@ -1,6 +1,6 @@
 import type { BaseProvider } from '@ethersproject/providers'
 import type { LastBlockNumber } from './libs/LastBlockNumber'
-import { filter, from, map, mergeMap, Subject, takeUntil } from 'rxjs'
+import { filter, from, map, mergeMap, Subject, takeUntil, tap } from 'rxjs'
 import { filterApprovalEvents, filterLpEvents, filterMinAmountSwapLogs, filterStakingEvents, filterSwapLogs, transfersFilter } from './eventFilters'
 import { humanizateApprovalLog, humanizateLpLog, humanizateStakingLog, humanizateSwapLog, humanizateTransferLog } from './humanizate'
 import { watchLpLogs, watchStakingLogs, watchSwapLog, watchTransfers } from './watchers'
@@ -31,23 +31,19 @@ export const watch = (provider:BaseProvider, lastBlockNumber: LastBlockNumber) =
 
   const pairsWithTargetToken = from(pairs).pipe(filter(pair => isLpWithTargetToken(pair)))
 
-  const swapLogs = pairsWithTargetToken
-    .pipe(mergeMap((pair) => watchSwapLog(provider, pair)))
-    .pipe(takeUntil(destroy$))
-
+  
   // Handle swap
-  swapLogs
+  pairsWithTargetToken
     .pipe(
+      mergeMap((pair) => watchSwapLog(provider, pair)),
+      tap(targetPriceFetcher.handleSwapLog),
       filterMinAmountSwapLogs,
       mergeMap(addTransaction),
       filterSwapLogs,
       map(humanizateSwapLog),
+      takeUntil(destroy$),
     )
-    .pipe(takeUntil(destroy$))
     .subscribe(messagesSubject$)
-
-  // Handle update prices
-  swapLogs.subscribe(targetPriceFetcher.handleSwapLog)
     
   // Handle LP
   pairsWithTargetToken.pipe(
