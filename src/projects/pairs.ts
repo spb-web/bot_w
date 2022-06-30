@@ -120,6 +120,15 @@ export const pairs:ReadonlyArray<PairType> = [
     type: 'LP-TOKEN',
     decimals: 18,
   },
+  {
+    token0: tokens.usdc,
+    token1: tokens.nmx,
+    symbol: 'USDC-NMX LP',
+    address: '0xdFB9cAb9f44355963588bc26b9633996Ce8c0D80',
+    exchangeName: 'Nomiswap',
+    type: 'LP-TOKEN',
+    decimals: 18,
+  },
   // Nomiswap [END]
 
   // Biswap [BEGIN]

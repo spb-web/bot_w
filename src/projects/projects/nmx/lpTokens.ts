@@ -17,5 +17,6 @@ export const lpTokens = {
     maticUsdt: getPairByAddress('0x996B28Dda11381466C9e410D0b63a313a0f31c6B'),
     dogeUsdt: getPairByAddress('0xDCbc1D9D48016b8d5F3B0F9045Eb3B72F38E6B93'),
     shibBusd: getPairByAddress('0x943B50018F1A8aa16ce24503eef3E53115103fb6'),
+    nmxUsdc: getPairByAddress('0xdFB9cAb9f44355963588bc26b9633996Ce8c0D80'),
   }
 }

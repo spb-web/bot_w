@@ -115,4 +115,12 @@ export const stakingPools:ReadonlyArray<StakingPoolType> = [
     exchangeName: 'Nomiswap',
     name: 'SHIB-BUSD',
   },
+  {
+    contractType: StakingContractType.MULTY_CONTRCATS,
+    address: '0x10298Be5Abf74D111D133dc3493Dc4C6a9FD924b',
+    stakingToken: lpTokens.nomiswap.usdtNmx,
+    earningToken: tokens.nmx,
+    exchangeName: 'Nomiswap',
+    name: 'USDC-NMX',
+  },
 ]
