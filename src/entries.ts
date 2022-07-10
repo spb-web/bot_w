@@ -1,6 +1,9 @@
 import type { Log } from '@ethersproject/abstract-provider'
+import type { BaseProvider } from '@ethersproject/providers'
 import type { BigNumber } from 'bignumber.js'
 import type { TransactionData } from './fetch/fetchTransaction'
+import type { TargetPriceFetcher } from './libs/TargetPriceFetcher'
+import type { TgBot } from './libs/TgBot'
 
 export enum StakingContractType {
   MULTY_CONTRCATS,
@@ -9,7 +12,7 @@ export enum StakingContractType {
   MASTER_CHEF_V2,
 }
 
-type BaseToken = {
+export type BaseToken = {
   address: string,
   symbol: string,
   decimals: number,
@@ -61,7 +64,7 @@ export type BaseTargetEventWithTransactionAndBalance<E extends BaseTargetEvent> 
 
 export type TelegramConfigType = Readonly<{
   whalesChatId: string,
-  logsChatId: string,
+  publicWhalesChatId: string,
   botToken: string,
 }>
 
@@ -78,6 +81,14 @@ export type ProjectLimitsType = Readonly<{
   balanceAlertAmount: number,
 }>
 
+export type ProjectMinLimitsType = Readonly<{
+  minTransferAmount: number,
+  minSwapAmount: number,
+  minLpAmount: number,
+  rewardAmount: number,
+  stakeLpAmount: number,
+}>
+
 export type ProjectType = Readonly<{
   name: Readonly<string>,
   lpTokens: Readonly<Record<string, Readonly<Record<string, PairType>>>>,
@@ -85,4 +96,14 @@ export type ProjectType = Readonly<{
   targetToken: TokenType,
   telegram: TelegramConfigType,
   limits: ProjectLimitsType,
+  publicLimits: ProjectLimitsType,
+  minLimits: ProjectMinLimitsType,
 }>
+
+export type ProjectEventType<E extends BaseTargetEvent> = {
+  project: ProjectType,
+  provider: BaseProvider,
+  tgBot: TgBot,
+  event: E,
+  priceFetcher: TargetPriceFetcher,
+}

@@ -1,29 +1,29 @@
 import type { BurnLpEvent, MintLpEvent } from '@/watchers'
 import type { MessagePayloadType } from '@/libs/TgBot'
-import { targetPriceFetcher } from '../libs/TargetPriceFetcher'
-import { project, targetToken } from '../projects'
-import { toLocaleString } from '../utils/toLocaleString'
+import type { BaseTargetEventWithTransaction, ProjectType } from '@/entries'
+import type { TargetPriceFetcher } from '@/libs/TargetPriceFetcher'
+import { toLocaleString } from '@/utils/toLocaleString'
 import { getButtons } from './getButtons'
 import { getWalletString } from './getWalletString'
-import { BaseTargetEventWithTransaction } from '@/entries'
+import { isEqualTokens } from '@/utils/isEqualTokens'
 
-export const humanizateLpLog = (log:BaseTargetEventWithTransaction<MintLpEvent|BurnLpEvent>): MessagePayloadType => {
-  const lpSymbol = log.pair.symbol
-  const exchangeName = log.pair.exchangeName
-  const tags:string[] = [`#${project.name}`, `#${exchangeName}`]
-  const targetAmount = log.pair.token0.address === targetToken.address 
-    ? log.amount0
-    : log.amount1
-  const lpAmountPrice = targetAmount.times(targetPriceFetcher.getPrice()).times(2)
+export const humanizateLpLog = (project: ProjectType, priceFetcher: TargetPriceFetcher, log:BaseTargetEventWithTransaction<MintLpEvent|BurnLpEvent>): MessagePayloadType => {
+  const { eventData, name: logName, addressesInfo } = log
+  const { pair: { symbol: lpSymbol, exchangeName } } = eventData
+  const tags:string[] = [`#${project.name}Whales`, `#${exchangeName}`]
+  const targetAmount = isEqualTokens(eventData.pair.token0, project.targetToken)
+    ? eventData.amount0
+    : eventData.amount1
+  const lpAmountPrice = targetAmount.times(priceFetcher.getPrice()).times(2)
   const lpAmountPriceStr= `(~ $${toLocaleString(lpAmountPrice, true)})`
   let text:string
 
-  if (log.name === 'Burn') {
-    const to = getWalletString(log.to, log.addressesInfo)
-    text = `🔴 Удалена ликвидность ${lpSymbol} ${lpAmountPriceStr} \n Получено ${ toLocaleString(log.amount0) } ${log.pair.token0.symbol} и ${ toLocaleString(log.amount1) } ${log.pair.token1.symbol} на адрес ${to} на ${exchangeName}`
+  if (logName === 'Burn-LP') {
+    const to = getWalletString(eventData.to, addressesInfo)
+    text = `🔴 Удалена ликвидность ${lpSymbol} ${lpAmountPriceStr} \n Получено ${ toLocaleString(eventData.amount0) } ${eventData.pair.token0.symbol} и ${ toLocaleString(eventData.amount1) } ${eventData.pair.token1.symbol} на адрес ${to} на ${exchangeName}`
     tags.push(`#УдаленаЛиквидность`)
-  } else if (log.name === 'Mint') {
-    text = `🟢 Добавлена ликвидность ${lpSymbol} ${lpAmountPriceStr} \n ${ toLocaleString(log.amount0) } ${log.pair.token0.symbol} и ${ toLocaleString(log.amount1) } ${log.pair.token1.symbol} на ${exchangeName}`
+  } else if (logName === 'Mint-LP') {
+    text = `🟢 Добавлена ликвидность ${lpSymbol} ${lpAmountPriceStr} \n ${ toLocaleString(eventData.amount0) } ${eventData.pair.token0.symbol} и ${ toLocaleString(eventData.amount1) } ${eventData.pair.token1.symbol} на ${exchangeName}`
     tags.push(`#ДобавленаЛиквидность`)
   } else {
     throw new Error(`[humanizateLpLog]: unknow log ${JSON.stringify(log)}`);

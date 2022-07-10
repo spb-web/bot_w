@@ -3,10 +3,9 @@ import type { Message } from 'telegraf/typings/core/types/typegram'
 import PQueue from 'p-queue'
 import delay from 'delay'
 import { Telegraf } from 'telegraf'
-import { project } from '@/projects'
 import { escape } from './helpers'
 
-const { telegram: { botToken, logsChatId } } = project
+const logsChatId = '1981691657'
 
 export type MessagePayloadType = {
   text: string,
@@ -25,6 +24,14 @@ export class TgBot {
     // Enable graceful stop
     process.once('SIGINT', () => this.bot.stop('SIGINT'))
     process.once('SIGTERM', () => this.bot.stop('SIGTERM'))
+
+    this.bot.command('hello', async (ctx) => {
+      await ctx.deleteMessage(ctx.message.message_id)
+      await this.send({
+        text: ctx.message.chat.id.toString(),
+        chatId: ctx.message.chat.id.toString(),
+      })
+    })
   }
 
   public async launch() {
@@ -77,5 +84,3 @@ export class TgBot {
     })
   }
 }
-
-export const tgBot = new TgBot(botToken)

@@ -1,16 +1,15 @@
-import { BigNumber } from 'bignumber.js'
-import { targetToken, limits } from '@/projects'
+import type { BigNumber } from 'bignumber.js'
+import type { ProjectType } from '@/entries'
+import type { TargetPriceFetcher } from '@/libs/TargetPriceFetcher'
 import { toLocaleString } from '@/utils/toLocaleString'
-import { targetPriceFetcher } from '@/libs/TargetPriceFetcher'
 
-const { balanceAlertAmount } = limits
-
-export const getStakedBalance = (staked:BigNumber):string => {
+export const getStakedBalance = (project:ProjectType, priceFetcher: TargetPriceFetcher, staked:BigNumber):string => {
   let text = 'В стейкинге: Не удалось получить 🙁'
+  const { limits: { balanceAlertAmount }, targetToken } = project
   const alertEmoji = staked.gte(balanceAlertAmount) ? '🚨 ' : ''
 
   if (staked.gt(0)) {
-    text = `${alertEmoji}В стейкинге: ${toLocaleString(staked)} ${targetToken.symbol} (~ $${toLocaleString(staked.times(targetPriceFetcher.getPrice()), true)})`
+    text = `${alertEmoji}В стейкинге: ${toLocaleString(staked)} ${targetToken.symbol} (~ $${toLocaleString(staked.times(priceFetcher.getPrice()), true)})`
   } else if (staked.eq(0)) {
     text = 'В стейкинге: 0'
   }

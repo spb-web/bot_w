@@ -1,17 +1,12 @@
 import path from 'path'
 import { Storage } from './Storage'
 
-/**
- * key - project name
- * 
- * value - project data
- */
 export type BlockDbData = { lastBlock: number }
 
 export class LastBlockNumber extends Storage<BlockDbData> {
-  constructor(projectName: string) {
+  constructor() {
     super(
-      path.join(__dirname, `../../runtime/${projectName}/blocksDb.json`),
+      path.join(__dirname, `../../runtime/blocksDb.json`),
       {
         type: 'object',
         properties: {

@@ -1,6 +1,6 @@
+import type { ProjectType } from '@/entries'
 import { createCanvas } from 'canvas'
 import interpolate from 'color-interpolate'
-import { project } from '@/projects'
 import { toLocaleString } from '@/utils/toLocaleString'
 
 export type HumanizateAnalysisPayload = {
@@ -100,7 +100,7 @@ const drawImage = (value:number) => {
   return canvas.toBuffer()
 }
 
-export const humanizateAnalysis = (analysis: HumanizateAnalysisPayload, chatId: string) => {
+export const humanizateAnalysis = (project:ProjectType, analysis: HumanizateAnalysisPayload, chatId: string) => {
   let text = `Цена NMX: ~$${toLocaleString(analysis.currentPrice, true)} \n\n`
   text += '*СКОЛЬЗЯЩИЕ СРЕДНИЕ*\n'
   let sellRe = 0
@@ -132,7 +132,7 @@ export const humanizateAnalysis = (analysis: HumanizateAnalysisPayload, chatId: 
   })
 
   text+=`\nПродавать: ${sellRe}; Нейтрально: ${holdRe}; Покупать: ${buyRe} \n`
-  text+=`\n\n#${project.name}`
+  text+=`\n\n#${project.name}Whales`
 
   const totalRe = sellRe + holdRe + buyRe
   const indx = ((((sellRe - buyRe + (holdRe / 2)) / totalRe / 2) + 0.5) * (Math.PI / 5 * 4) + Math.PI / 10) / Math.PI

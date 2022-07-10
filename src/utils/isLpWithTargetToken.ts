@@ -1,9 +1,11 @@
-import type { PairType } from '@/entries'
-import { targetToken } from '@/projects'
+import type { PairType, TokenType } from '@/entries'
 
-export const isLpWithTargetToken = (pair:PairType) => {
+export const isLpWithTargetToken = (pair:TokenType | PairType, targetToken: TokenType) => {
   return (
-    pair.token0.address === targetToken.address
-    || pair.token1.address === targetToken.address
+    pair.type === 'LP-TOKEN'
+    && (
+      pair.token0.address === targetToken.address
+      || pair.token1.address === targetToken.address
+    )
   )
 }

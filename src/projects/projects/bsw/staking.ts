@@ -4,6 +4,14 @@ import { tokens } from '../../tokens'
 
 export const stakingPools:ReadonlyArray<StakingPoolType> = [
   {
+    contractType: StakingContractType.MULTY_CONTRCATS_AUTO,
+    address: '0x97A16ff6Fd63A46bf973671762a39f3780Cda73D',
+    stakingToken: tokens.bsw,
+    earningToken: tokens.bsw,
+    exchangeName: 'Biswap',
+    name: 'AutoBSW',
+  },
+  {
     contractType: StakingContractType.MASTER_CHEF_V2,
     address: '0xa4b20183039b2F9881621C3A03732fBF0bfdff10',
     stakingToken: tokens.bsw,

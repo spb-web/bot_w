@@ -7,7 +7,7 @@
     "start": "NODE_ENV=prod node ./dist/app.js",
     "preview": "NODE_ENV=dev node ./dist/app.js",
     "build": "tsc",
-    "dev": "NODE_ENV=dev PROJECT=BSW ts-node ./src/app.ts",
+    "dev": "NODE_ENV=dev ts-node ./src/app.ts",
     "ubuntu": "apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev",
     "mac": "brew install pkg-config cairo pango libpng jpeg giflib librsvg"
   },

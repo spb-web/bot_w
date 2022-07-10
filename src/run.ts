@@ -1,70 +1,82 @@
-import { BaseProvider } from '@ethersproject/providers'
-import { pairs, project } from '@/projects'
-import { targetPriceFetcher } from '@/libs/TargetPriceFetcher'
-import { tgBot } from '@/libs/TgBot'
+import env from 'env-var'
+import type { BaseProvider } from '@ethersproject/providers'
+import { allProjects } from '@/projects'
 import { LastBlockNumber } from '@/libs/LastBlockNumber'
-import { isLpWithTargetToken } from '@/utils/isLpWithTargetToken'
 import { wsProviderController } from '@/utils/providers/WsProviderController'
-import { watch } from '@/watch'
-import { getBlock } from '@/watchers/block'
+import { projectPipe } from '@/pipe/projectPipe'
+import { getBlock, watchBlock } from '@/watchers/block'
 import { movingAverages, movingAveragesDays } from '@/movingAverage'
 import { humanizateAnalysis } from '@/humanizate/humanizateAnalysis'
 import { getTechnicalindicators } from '@/libs/technicalindicators'
 import { getProvider } from '@/utils/providers/getProvider'
+import { from, mergeMap, tap } from 'rxjs'
+import { addTransactionPipe } from './pipe/addTransactionPipe'
+import { telegramMessagePipe } from './pipe/telegramMessagePipe'
+import { filterMinimum } from './pipe/filterMinimum'
+import { filterWithBalance } from './pipe/filterWithBalance'
+import { addTgBotPipe } from './pipe/addTgBotPipe'
+import { telegramMessageTargetPipe } from './pipe/telegramMessageTargetPipe'
+import { TgBot } from './libs/TgBot'
+import { addPriceFetcherPipe } from './pipe/addPriceFetcherPipe'
 
 const provider = getProvider()
+const whalesBotFatherToken = env.get('WHALES_FATHER_TELEGRAM_BOT_TOKEN').required().asString()
+const whalesBotFather = new TgBot(whalesBotFatherToken)
 
 const init = async () => {
-  const pairsWithTargetToken = pairs.filter(isLpWithTargetToken)
-
   await Promise.all([
-    tgBot.launch(),
-    targetPriceFetcher.fetchPrice(),
-    targetPriceFetcher.fetchLpPriceAll(pairsWithTargetToken),
+    whalesBotFather.launch(),
    // wsProviderController.connect(),
   ])
 
-  //@ts-ignore
-  tgBot.bot.command('hello', async (ctx) => {
-    await ctx.deleteMessage(ctx.message.message_id)
-    await tgBot.send({
-      text: ctx.message.chat.id.toString(),
-      chatId: ctx.message.chat.id.toString(),
-    })
-  })
-
-  if (project.name === 'NMX') {
-    //@ts-ignore
-    tgBot.bot.command('av', async (ctx) => {
-      getTechnicalindicators()
-      await ctx.deleteMessage(ctx.message.message_id)
-      const analysis = {
-        currentPrice: movingAverages[10].lastValue(),
-        movingAverages: movingAveragesDays.map((days) => {
-          return {
-            days,
-            movingAverage: movingAverages[days].movingAverage(),
-          }
-        }),
-      }
-      await tgBot.send(
-        humanizateAnalysis(
-          analysis,
-          ctx.chat.id.toString()
-        )
-      )
-    })
-  }
+  // if (project.name === 'NMX') {
+  //   //@ts-ignore
+  //   tgBot.bot.command('av', async (ctx) => {
+  //     getTechnicalindicators()
+  //     await ctx.deleteMessage(ctx.message.message_id)
+  //     const analysis = {
+  //       currentPrice: movingAverages[10].lastValue(),
+  //       movingAverages: movingAveragesDays.map((days) => {
+  //         return {
+  //           days,
+  //           movingAverage: movingAverages[days].movingAverage(),
+  //         }
+  //       }),
+  //     }
+  //     await tgBot.send(
+  //       humanizateAnalysis(
+  //         analysis,
+  //         ctx.chat.id.toString()
+  //       )
+  //     )
+  //   })
+  // }
 }
 
-const run = async (wsProvider:BaseProvider) => {
-  const lastBlockNumber = new LastBlockNumber(project.name)
+const run = async (provider:BaseProvider) => {
+  const lastBlockNumber = new LastBlockNumber()
   const currentBlock = await getBlock('latest')
 
-  watch(wsProvider, lastBlockNumber)
+  // Blocks number
+  watchBlock(provider)
+    .subscribe(async (block) => {
+      await lastBlockNumber.saveBlockNumber(block.number)
+    })
+
+  from(allProjects.map((project => ({ provider, project })))).pipe(
+    addTgBotPipe,
+    addPriceFetcherPipe,
+    projectPipe,
+    filterMinimum,
+    addTransactionPipe,
+    filterWithBalance,
+    telegramMessagePipe,
+    telegramMessageTargetPipe,
+    tap(({ tgBot, tgMessage, tgMessageChatId }) => tgBot.send({ ...tgMessage, chatId: tgMessageChatId }))
+  ).subscribe()
 
   if (lastBlockNumber.lastBlock < currentBlock.number) {
-    await tgBot.sendLog(
+    await whalesBotFather.sendLog(
       `Последний прочитанный блок: ${lastBlockNumber.lastBlock}\nТекущий блок: ${currentBlock.number}\nПропущено блоков: ${currentBlock.number - lastBlockNumber.lastBlock}`
     )
   }
@@ -79,7 +91,7 @@ init()
   //.then(run)
   .catch((error) => {
     console.error(error)
-    tgBot.sendLog('Main error \n'+JSON.stringify(error))
+    whalesBotFather.sendLog('Main error \n'+JSON.stringify(error))
   })
 
 // wsProviderController.on('connected', () => {

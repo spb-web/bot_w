@@ -1,13 +1,10 @@
 import type { Call } from '@/utils/multicall'
 import { BigNumber } from 'bignumber.js'
 import asyncRetry from 'async-retry'
-import { targetToken } from '@/projects'
-import { getPoolByEarningTokenAndExhange } from '../utils/getPoolByEarningTokenAndExhange'
 import multicall from '../utils/multicall'
-import { StakingContractType } from '@/entries'
+import { ProjectType, StakingContractType } from '@/entries'
 
 const TEN_BN = new BigNumber(10)
-const targetTokenStakingPool = getPoolByEarningTokenAndExhange(targetToken.address)
 const abi = [
   {
     "inputs": [
@@ -64,35 +61,35 @@ const abi = [
   },
 ]
 
-export const fetchTargetTokenBalance = (address:string):Promise<{balance: BigNumber, staked: BigNumber}> => {
+export const fetchTargetTokenBalance = (project: ProjectType, address:string):Promise<{balance: BigNumber, staked: BigNumber}> => {
   try {
     return asyncRetry(async () => {
       const calls:Call[] = [
         {
           name: 'balanceOf',
-          address: targetToken.address,
+          address: project.targetToken.address,
           params: [address],
         },
       ]
   
-      if (targetTokenStakingPool.contractType === StakingContractType.MULTY_CONTRCATS) {
-        calls.push({
-          name: 'stakers',
-          address: targetTokenStakingPool.address,
-          params: [address],
-        })
-      }
+      // if (targetTokenStakingPool.contractType === StakingContractType.MULTY_CONTRCATS) {
+      //   calls.push({
+      //     name: 'stakers',
+      //     address: targetTokenStakingPool.address,
+      //     params: [address],
+      //   })
+      // }
   
       let staked = new BigNumber(0)
   
       const returnData = await multicall(abi, calls)
       const [rawBalance] = returnData[0]
-      const balance = new BigNumber(rawBalance._hex).div(TEN_BN.pow(targetToken.decimals))
+      const balance = new BigNumber(rawBalance._hex).div(TEN_BN.pow(project.targetToken.decimals))
   
-      if (targetTokenStakingPool.contractType === StakingContractType.MULTY_CONTRCATS) {
-        const { amount: rawStaked } = returnData[1]
-        staked = new BigNumber(rawStaked._hex).div(TEN_BN.pow(targetToken.decimals))
-      }
+      // if (targetTokenStakingPool.contractType === StakingContractType.MULTY_CONTRCATS) {
+      //   const { amount: rawStaked } = returnData[1]
+      //   staked = new BigNumber(rawStaked._hex).div(TEN_BN.pow(project.targetToken.decimals))
+      // }
   
       return {
         balance,
@@ -103,7 +100,7 @@ export const fetchTargetTokenBalance = (address:string):Promise<{balance: BigNum
       minTimeout: 500,
     })
   } catch (error) {
-    console.error('[fetchTargetTokenBalance]: Error', 'targetTokenStakingPool', targetTokenStakingPool, )
+    console.error('[fetchTargetTokenBalance]: Error', 'targetTokenStakingPool', )
     console.error(error)
     throw error 
   }

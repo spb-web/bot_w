@@ -1,47 +1,31 @@
-import type { SwapEvent } from '@/watchers'
+import { SwapEvent, SwapSide } from '@/watchers'
 import type { MessagePayloadType } from '@/libs/TgBot'
-import type { BaseTargetEventWithTransactionAndBalance } from '@/entries'
+import type { BaseTargetEventWithTransactionAndBalance, ProjectType } from '@/entries'
+import type { TargetPriceFetcher } from '@/libs/TargetPriceFetcher'
 import { toLocaleString } from '../utils/toLocaleString'
 import { getBalanceString } from './getBalanceString'
 import { getStakedBalance } from './getStakedBalance'
-import { project, isTargetToken } from '../projects'
 import { getButtons } from './getButtons'
 import { getWalletString } from './getWalletString'
 
-const sell = '🐻 Продажа'
-const buy = '🐮 Покупка'
-
-export const humanizateSwapLog = (log:BaseTargetEventWithTransactionAndBalance<SwapEvent>): MessagePayloadType => {
-  const exchangeName = log.pair.exchangeName
-  const response = log.transaction.response
-  const symbol0 = log.pair.token0.symbol
-  const symbol1 = log.pair.token1.symbol
-  const sender = response ? `С кошелька ${getWalletString(response.from, log.addressesInfo)}` : 'Не удалось загрузить адрес'
-  const targetTokenBalance = getBalanceString(log.senderBalance)
-  const targetTokenStaked = getStakedBalance(log.senderStaked)
-  const tags = [`#${project.name}`, `#${exchangeName}`]
+export const humanizateSwapLog = (project: ProjectType, priceFetcher: TargetPriceFetcher, event:BaseTargetEventWithTransactionAndBalance<SwapEvent>): MessagePayloadType => {
+  const { eventData: { side, targetAmount, pairedAmount, targetToken, pairedToken } } = event
+  const exchangeName = event.eventData.pair.exchangeName
+  const response = event.transaction.response
+  const sender = response ? `С кошелька ${getWalletString(response.from, event.addressesInfo)}` : 'Не удалось загрузить адрес'
+  const targetTokenBalance = getBalanceString(project, priceFetcher, event.senderBalance)
+  const targetTokenStaked = getStakedBalance(project, priceFetcher, event.senderStaked)
+  const tags = [`#${project.name}Whales`, `#${exchangeName}`]
+  const price = `1 ${targetToken.symbol} \\\= ${toLocaleString(pairedAmount.div(targetAmount))} ${pairedToken.symbol}`
 
   let text = ''
-  let price = ''
 
-  if (isTargetToken(log.pair.token0.address)) {
-    if (log.amount0In.gt(0)) {
-      text = `${sell} ${toLocaleString(log.amount0In)} ${symbol0} за ${toLocaleString(log.amount1Out)} ${symbol1} на ${exchangeName}`
-      price = `1 ${symbol0} \\\= ${toLocaleString(log.amount1Out.div(log.amount0In))} ${symbol1}`
-      tags.push('#Продажа')
-    } else {
-      text = `${buy} ${toLocaleString(log.amount0Out)} ${symbol0} за ${toLocaleString(log.amount1In)} ${symbol1} на ${exchangeName}`
-      price = `1 ${symbol0} \\\= ${toLocaleString(log.amount1In.div(log.amount0Out))} ${symbol1}`
-      tags.push('#Покупка')
-    } 
-  } else if (log.amount1In.gt(0)) {
-    text = `${sell} ${toLocaleString(log.amount1In)} ${symbol1} за ${toLocaleString(log.amount0Out)} ${symbol0} на ${exchangeName}`
-    price = `1 ${symbol1} \\\= ${toLocaleString(log.amount0Out.div(log.amount1In))} ${symbol0}`
-    tags.push('#Продажа')
-  } else {
-    text = `${buy} ${toLocaleString(log.amount1Out)} ${symbol1} за ${toLocaleString(log.amount0In)} ${symbol0} на ${exchangeName}`
-    price = `1 ${symbol1} \\\= ${toLocaleString(log.amount0In.div(log.amount1Out))} ${symbol0}`
+  if (side === SwapSide.BUY) {
+    text = `🐮 Покупка ${toLocaleString(targetAmount)} ${targetToken.symbol} за ${toLocaleString(pairedAmount)} ${pairedToken.symbol} на ${exchangeName}`
     tags.push('#Покупка')
+  } else {
+    text = `🐻 Продажа ${toLocaleString(targetAmount)} ${targetToken.symbol} за ${toLocaleString(pairedAmount)} ${pairedToken.symbol} на ${exchangeName}`
+    tags.push('#Продажа')
   }
 
   text = `${text}\n${price}\n${sender}\n${targetTokenBalance}\n${targetTokenStaked}`
@@ -51,7 +35,7 @@ export const humanizateSwapLog = (log:BaseTargetEventWithTransactionAndBalance<S
     chatId: project.telegram.whalesChatId,
     text,
     extra: {
-      reply_markup: getButtons(log),
+      reply_markup: getButtons(event),
     },
   }
 }

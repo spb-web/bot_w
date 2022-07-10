@@ -14,10 +14,12 @@ const nmxInterface = new Interface(abi)
 
 export type TransferEvent = Readonly<{
   name: 'Transfer',
-  from: string,
-  to: string,
-  amount: BigNumber,
-  token: TokenType,
+  eventData: {
+    from: string,
+    to: string,
+    amount: BigNumber,
+    token: TokenType,
+  }
 }> & BaseTargetEvent
 
 export const watchTransfers = (wsProvider:BaseProvider, token:TokenType) => {
@@ -35,10 +37,12 @@ export const watchTransfers = (wsProvider:BaseProvider, token:TokenType) => {
   
       const transferEvent:TransferEvent = {
         name: 'Transfer',
-        from: log.args[0],
-        to: log.args[1],
-        amount: amountBn.div(10**token.decimals),
-        token,
+        eventData: {
+          from: log.args[0],
+          to: log.args[1],
+          amount: amountBn.div(10**token.decimals),
+          token,
+        },
         rawLog,
       }
 

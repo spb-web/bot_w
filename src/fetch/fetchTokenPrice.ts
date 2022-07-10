@@ -1,10 +1,10 @@
 import type { TokenType } from '@/entries'
-import { BigNumber as EthersBigNumber } from 'ethers'
+import type { BigNumber as EthersBigNumber } from 'ethers'
 import { BigNumber } from 'bignumber.js'
 import asyncRetry from 'async-retry'
 import multicall, { Call } from '../utils/multicall'
-import pairAbi from '../config/abi/pairAbi.json'
-import { getTokenPriceRoute } from '../utils/getTokenPriceRoute'
+import pairAbi from '@/config/abi/pairAbi.json'
+import { getTokenPriceRoute } from '@/utils/getTokenPriceRoute'
 
 const TEN_BN = new BigNumber(10)
 
