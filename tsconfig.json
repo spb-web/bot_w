@@ -9,6 +9,7 @@
     "jsx": "preserve",
     "sourceMap": true,
     "resolveJsonModule": true,
+    "emitDecoratorMetadata": true,
     "esModuleInterop": true,
     "lib": ["esnext", "ES2021", "dom"],
     "outDir": "./dist",

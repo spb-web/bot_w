@@ -1,4 +1,3 @@
-import env from 'env-var'
 import type { BaseProvider } from '@ethersproject/providers'
 import { allProjects } from '@/projects'
 import { LastBlockNumber } from '@/libs/LastBlockNumber'
@@ -10,22 +9,22 @@ import { humanizateAnalysis } from '@/humanizate/humanizateAnalysis'
 import { getTechnicalindicators } from '@/libs/technicalindicators'
 import { getProvider } from '@/utils/providers/getProvider'
 import { from, mergeMap, tap } from 'rxjs'
-import { addTransactionPipe } from './pipe/addTransactionPipe'
-import { telegramMessagePipe } from './pipe/telegramMessagePipe'
-import { filterMinimum } from './pipe/filterMinimum'
-import { filterWithBalance } from './pipe/filterWithBalance'
-import { addTgBotPipe } from './pipe/addTgBotPipe'
-import { telegramMessageTargetPipe } from './pipe/telegramMessageTargetPipe'
-import { TgBot } from './libs/TgBot'
-import { addPriceFetcherPipe } from './pipe/addPriceFetcherPipe'
+import { addTransactionPipe } from '@/pipe/addTransactionPipe'
+import { telegramMessagePipe } from '@/pipe/telegramMessagePipe'
+import { filterMinimum } from '@/pipe/filterMinimum'
+import { filterWithBalance } from '@/pipe/filterWithBalance'
+import { addTgBotPipe } from '@/pipe/addTgBotPipe'
+import { telegramMessageTargetPipe } from '@/pipe/telegramMessageTargetPipe'
+import { addPriceFetcherPipe } from '@/pipe/addPriceFetcherPipe'
+import { whalesBotFather } from '@/whalesBotFather'
+import { initDb } from '@/db/appDataSource'
 
 const provider = getProvider()
-const whalesBotFatherToken = env.get('WHALES_FATHER_TELEGRAM_BOT_TOKEN').required().asString()
-const whalesBotFather = new TgBot(whalesBotFatherToken)
 
 const init = async () => {
   await Promise.all([
     whalesBotFather.launch(),
+    initDb(),
    // wsProviderController.connect(),
   ])
 

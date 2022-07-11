@@ -5,8 +5,6 @@ import delay from 'delay'
 import { Telegraf } from 'telegraf'
 import { escape } from './helpers'
 
-const logsChatId = '1981691657'
-
 export type MessagePayloadType = {
   text: string,
   extra?: ExtraReplyMessage,
@@ -15,6 +13,7 @@ export type MessagePayloadType = {
 }
 
 export class TgBot {
+  public readonly adminChatId = '1981691657'
   public readonly bot:Telegraf
   private queue = new PQueue({ concurrency: 1, autoStart: true })
 
@@ -40,7 +39,7 @@ export class TgBot {
 
   public async sendLog(text:string) {
     await this.send({
-      chatId: logsChatId,
+      chatId: this.adminChatId,
       text,
       extra: {
         parse_mode: 'HTML',
