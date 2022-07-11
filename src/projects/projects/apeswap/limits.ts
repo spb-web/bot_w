@@ -21,9 +21,9 @@ export const publicLimits:ProjectLimitsType = {
 }
 
 export const minLimits:ProjectMinLimitsType = {
-  minTransferAmount: 10000,
-  minSwapAmount: 10000,
-  minLpAmount: 10000,
-  rewardAmount: 10000,
-  stakeLpAmount: 10000,
+  minTransferAmount: 30000,
+  minSwapAmount: 30000,
+  minLpAmount: 30000,
+  rewardAmount: 30000,
+  stakeLpAmount: 30000,
 }
