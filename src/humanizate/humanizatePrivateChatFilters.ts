@@ -1,7 +1,7 @@
 import type { ProjectType } from "@/entries"
 import { toLocaleString } from "@/utils/toLocaleString"
 
-export const humanizateChatDescription = (project: ProjectType) => {
+export const humanizatePrivateChatFilters = (project: ProjectType) => {
   return `
 Private chat filters:
 

@@ -1,13 +1,13 @@
 import type { ProjectLimitsType, ProjectMinLimitsType } from "@/entries"
 
 export const limits:ProjectLimitsType = {
-  minTransferAmountPrice: 5000,
-  minSwapAmountPrice: 5000,
-  minSwapAmountPriceWithLargeBalance: 5000,
-  minLpAmountPrice: 5000,
-  rewardAmountPrice: 5000,
-  stakeLpAmountPrice: 5000,
-  balanceAlertAmount: 5000,
+  minTransferAmountPrice: 4000,
+  minSwapAmountPrice: 4000,
+  minSwapAmountPriceWithLargeBalance: 400,
+  minLpAmountPrice: 4000,
+  rewardAmountPrice: 1000,
+  stakeLpAmountPrice: 4000,
+  balanceAlertAmount: 10000,
 }
 
 export const publicLimits:ProjectLimitsType = {
