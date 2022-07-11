@@ -9,10 +9,19 @@ export const addTgBotPipe = mergeMap(async (payload: {provider: BaseProvider, pr
 
   await tgBot.launch()
 
+  const chatDescription = humanizateChatDescription(payload.project)
+
   await tgBot.setChatDescription(
     payload.project.telegram.whalesChatId,
-    humanizateChatDescription(payload.project)
+    chatDescription,
   )
+
+  tgBot.bot.command('/private_chat_filters', async (ctx) => {
+    await tgBot.send({
+      chatId: ctx.chat.id.toString(),
+      text: chatDescription,
+    })
+  })
 
   return { ...payload, tgBot }
 })

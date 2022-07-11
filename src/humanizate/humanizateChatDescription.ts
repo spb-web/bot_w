@@ -3,16 +3,12 @@ import { toLocaleString } from "@/utils/toLocaleString"
 
 export const humanizateChatDescription = (project: ProjectType) => {
   return `
-FILTERS:
+Private chat filters:
 
-- 📩 Transfers: $${toLocaleString(project.limits.minTransferAmountPrice)}
-
-- 🐮🐻 Buy/Sell: $${toLocaleString(project.limits.minSwapAmountPrice)}
-
-- 🟢🔴 Mint/Burn liquidity: $${toLocaleString(project.limits.minLpAmountPrice)}
-
-- 👍👎 Deposit/Withdrawal: $${toLocaleString(project.limits.stakeLpAmountPrice)}
-
-- 🤝 Farming rewards: $${toLocaleString(project.limits.rewardAmountPrice)}
+📩 Transfers: $${toLocaleString(project.limits.minTransferAmountPrice)} 
+🐮🐻 Buy/Sell: $${toLocaleString(project.limits.minSwapAmountPrice)} 
+🟢🔴 Mint/Burn liquidity: $${toLocaleString(project.limits.minLpAmountPrice)} 
+👍👎 Deposit/Withdrawal: $${toLocaleString(project.limits.stakeLpAmountPrice)} 
+🤝 Farming rewards: $${toLocaleString(project.limits.rewardAmountPrice)} 
   `.trim()
 }
