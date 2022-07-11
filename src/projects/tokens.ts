@@ -79,6 +79,24 @@ export const tokens:Readonly<Record<string, TokenType>> = {
     decimals: 18,
     type: 'TOKEN',
   },
+  libera: {
+    symbol: 'LIBERA',
+    address: '0x3A806A3315E35b3F5F46111ADb6E2BAF4B14A70D',
+    decimals: 18,
+    type: 'TOKEN',
+  },
+  banana: {
+    symbol: 'BANANA',
+    address: '0x603c7f932ED1fc6575303D8Fb018fDCBb0f39a95',
+    decimals: 18,
+    type: 'TOKEN',
+  },
+  babyswap: {
+    symbol: 'BABY',
+    address: '0x53E562b9B7E5E94b81f10e96Ee70Ad06df3D2657',
+    decimals: 18,
+    type: 'TOKEN',
+  }
 }
 
 export const stablesCoins = [

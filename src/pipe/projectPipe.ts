@@ -35,23 +35,23 @@ export const projectPipe = mergeMap(
 
 
     // Handle staking
-    from(project.stakingPools)
-      .pipe(
-        filter(pool => (
-          pool.earningToken.address === project.targetToken.address 
-          || pool.stakingToken.address === project.targetToken.address 
-          || (pool.stakingToken.type === 'LP-TOKEN' && isLpWithTargetToken(pool.stakingToken, project.targetToken))
-        )),
-        mergeMap((stakingPool) => watchStakingLogs(provider, stakingPool)),
-      )
-      .subscribe(messagesSubject$)
+    // from(project.stakingPools)
+    //   .pipe(
+    //     filter(pool => (
+    //       pool.earningToken.address === project.targetToken.address 
+    //       || pool.stakingToken.address === project.targetToken.address 
+    //       || (pool.stakingToken.type === 'LP-TOKEN' && isLpWithTargetToken(pool.stakingToken, project.targetToken))
+    //     )),
+    //     mergeMap((stakingPool) => watchStakingLogs(provider, stakingPool)),
+    //   )
+    //   .subscribe(messagesSubject$)
 
     // Approve
     watchApprovalLogs(provider, project.targetToken)
       .subscribe(messagesSubject$)
 
     return messagesSubject$.pipe(
-      map((event) => ({ event, provider, project, tgBot, priceFetcher }))
+      map((event) => ({ event, provider, project, tgBot, priceFetcher })),
     )
   }
 )

@@ -160,4 +160,40 @@ export const pairs:ReadonlyArray<PairType> = [
     decimals: 18,
   },
   // Biswap [END]
+
+  // Libera Financial [BEGIN]
+  {
+    token0: tokens.libera,
+    token1: tokens.busd,
+    symbol: 'LIBERA-BUSD LP',
+    address: '0x22D954CA5540caB869AdA9bd9d339CDE3a9313b3',
+    exchangeName: 'Biswap',
+    type: 'LP-TOKEN',
+    decimals: 18,
+  },
+  // Libera Financial [END]
+
+  // Ape Swap [BEGIN]
+  {
+    token0: tokens.banana,
+    token1: tokens.busd,
+    symbol: 'BANANA-BUSD LP',
+    address: '0x7Bd46f6Da97312AC2DBD1749f82E202764C0B914',
+    exchangeName: 'ApeSwap',
+    type: 'LP-TOKEN',
+    decimals: 18,
+  },
+  // Ape Swap [END]
+
+  // Baby Swap [BEGIN]
+  {
+    token0: tokens.babyswap,
+    token1: tokens.usdt,
+    symbol: 'BABY-USDT LP',
+    address: '0xE730C7B7470447AD4886c763247012DfD233bAfF',
+    exchangeName: 'BabySwap',
+    type: 'LP-TOKEN',
+    decimals: 18,
+  },
+  // Baby Swap [END]
 ]
