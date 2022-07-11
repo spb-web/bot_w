@@ -83,4 +83,8 @@ export class TgBot {
       })
     })
   }
+
+  public async setChatDescription(chatId: string, description: string) {
+    await this.bot.telegram.setChatDescription(chatId, description)
+  }
 }
